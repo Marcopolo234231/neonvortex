@@ -49,6 +49,9 @@
   #xpFill{background:linear-gradient(90deg,var(--cyan),var(--lime))}
   .xpgain{font-style:normal;color:var(--lime);margin-left:6px;letter-spacing:.06em;text-shadow:0 0 8px rgba(182,255,60,.6)}
   .lo.art{border:2px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(255,255,255,.35)}
+  .errtext{display:block;width:100%;box-sizing:border-box;min-height:220px;max-height:50vh;margin:12px 0 14px;padding:12px;
+    background:#04050d;color:var(--ink);border:1px solid var(--line);border-radius:10px;resize:vertical;white-space:pre;
+    font:12px/1.45 ui-monospace,Consolas,'Courier New',monospace}
   /* character info + shot preview */
   .charinfo{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;align-items:center;text-align:left;
     margin:-4px 0 18px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:12px}
@@ -283,6 +286,7 @@
       <div class="btnrow">
         <button class="btn" id="startBtn">Start</button>
         <button class="btn ghost" id="journalBtn">📖 Journal</button>
+        <button class="btn ghost" id="logBtn">🧾 Protokoll</button>
       </div>
       <div class="controls">
         <span><kbd>W A S D</kbd> / <kbd>Pfeile</kbd></span>
@@ -310,6 +314,20 @@
     </div>
   </div>
 
+  <!-- Error log -->
+  <div class="screen" id="errlog" hidden>
+    <div class="card wide">
+      <h2 class="title" style="font-size:clamp(24px,6vw,40px)">Fehlerprotokoll</h2>
+      <p class="sub" style="margin:10px 0 0">Die letzten Fehler mit Zeitpunkt und Spielsituation. Kopiere das Protokoll und schick es weiter, wenn etwas hakt.</p>
+      <textarea class="errtext" id="errText" readonly spellcheck="false" aria-label="Fehlerprotokoll"></textarea>
+      <div class="btnrow">
+        <button class="btn" id="logCopy">Kopieren</button>
+        <button class="btn ghost" id="logClear">Leeren</button>
+        <button class="btn ghost" id="logClose">Zurück</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Pause -->
   <div class="screen" id="pause" hidden>
     <div class="card">
@@ -318,6 +336,7 @@
       <div class="btnrow">
         <button class="btn" id="resumeBtn">Weiter</button>
         <button class="btn ghost" id="pJournal">📖 Journal</button>
+        <button class="btn ghost" id="pLog">🧾 Protokoll</button>
         <button class="btn ghost" id="quitBtn">Lauf beenden</button>
       </div>
       <p class="hint" style="margin-top:14px"><kbd>Esc</kbd> schließt die Pause wieder</p>
@@ -718,7 +737,7 @@
   // ---- overlays ----
   function show(id){document.getElementById(id).hidden=false;}
   function hide(id){document.getElementById(id).hidden=true;}
-  function hideAll(){['profiles','menu','pause','levelup','over','unlock','journal'].forEach(hide);}
+  function hideAll(){['profiles','menu','pause','levelup','over','unlock','journal','errlog'].forEach(hide);}
   function toast(txt){var t=document.getElementById('toasts'),d=document.createElement('div');
     d.className='toast';d.textContent=txt;t.appendChild(d);
     setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';
@@ -1015,13 +1034,33 @@
     if(p.shMax>0){var h='';for(var i=0;i<p.sh;i++)h+='<i></i>';pipsEl.innerHTML=h;}else pipsEl.innerHTML='';}
 
   // ---- loop ----
-  var last=performance.now(), errSeen={};
+  // ---- error log: kept across reloads (last 20), repeats of the same message only bump a counter ----
+  var last=performance.now(), errSeen={}, errLog=load('nv_errlog',[]), logFrom='menu';
+  function saveLog(){ save('nv_errlog',errLog); }
   // A frame error must never stop the loop: log it, show it once, keep running.
-  function reportError(err){ var msg=(err&&err.message)||String(err);
+  function reportError(err){ var msg=(err&&err.message)||String(err||'Unbekannter Fehler');
     if(window.console)console.error(err);
-    if(errSeen[msg])return; errSeen[msg]=1;
+    if(errSeen[msg]){ errSeen[msg].n++; if(errSeen[msg].n%60===0)saveLog(); return; }
+    var p=player, where='Modus: '+S.mode;
+    if(p&&p.skin)where+=' · Zeit '+fmtTime(S.t)+' · Level '+p.lvl+' · '+p.skin.name+' · Gegner '+(enemies?enemies.length:0);
+    var stack=(err&&err.stack)?String(err.stack).split('\n').slice(1,4).map(function(s){return s.trim();}).join('\n'):'';
+    var entry={when:new Date().toLocaleString('de-CH'),where:where,msg:msg,stack:stack,n:1};
+    errSeen[msg]=entry; errLog.push(entry); if(errLog.length>20)errLog.shift(); saveLog();
     toast('⚠ Fehler im Spiel (läuft weiter): '+msg);
-    var eh=document.getElementById('errHint'); eh.textContent='Letzter Fehler: '+msg; eh.hidden=false; }
+    var eh=document.getElementById('errHint'); eh.textContent='Letzter Fehler: '+msg+' · Details im Protokoll'; eh.hidden=false;
+    refreshLogBtn(); }
+  // errors outside the game loop (button handlers, promises) end up in the log too
+  window.addEventListener('error',function(ev){ reportError(ev.error||ev.message); });
+  window.addEventListener('unhandledrejection',function(ev){ reportError(ev.reason); });
+  function logText(){
+    var head='Neon Vortex · Fehlerprotokoll · '+new Date().toLocaleString('de-CH')+'\n'+navigator.userAgent+'\n';
+    if(!errLog.length)return head+'\nKeine Fehler aufgezeichnet. 👍';
+    return head+'\n'+errLog.map(function(e,i){ return '#'+(i+1)+'  '+e.when+(e.n>1?'  (×'+e.n+')':'')+'\n'+e.where+'\n'+e.msg+(e.stack?'\n'+e.stack:''); }).join('\n\n'); }
+  function refreshLogBtn(){ var t='🧾 Protokoll'+(errLog.length?' ('+errLog.length+')':'');
+    document.getElementById('logBtn').textContent=t; document.getElementById('pLog').textContent=t; }
+  function openLog(from){ logFrom=from; hide('menu'); hide('pause');
+    document.getElementById('errText').value=logText(); show('errlog'); }
+  function closeLog(){ hide('errlog'); if(logFrom==='pause')show('pause'); else gotoMenu(); }
   function frame(now){ requestAnimationFrame(frame);
     // rAF time can be slightly older than a performance.now() set in a click handler, so never let dt go negative
     var dt=Math.max(0,(now-last)/1000); last=now; if(dt>0.05)dt=0.05;
@@ -1072,6 +1111,7 @@
   // ---- input ----
   window.addEventListener('keydown',function(ev){var k=ev.key.toLowerCase();
     if(ev.key==='Escape'){ev.preventDefault();
+      if(!document.getElementById('errlog').hidden){closeLog();return;}
       if(!document.getElementById('journal').hidden){closeJournal();return;}
       if(S.mode==='playing')openPause(); else if(S.mode==='paused')resumeGame(); return;}
     if(S.mode==='levelup'){if(k>='1'&&k<='4'&&k.length===1)pick(+k-1);else if(k==='r')doReroll();return;}
@@ -1093,13 +1133,23 @@
   document.getElementById('journalBtn').addEventListener('click',function(){openJournal('menu');});
   document.getElementById('pJournal').addEventListener('click',function(){openJournal('pause');});
   document.getElementById('jClose').addEventListener('click',closeJournal);
+  document.getElementById('logBtn').addEventListener('click',function(){openLog('menu');});
+  document.getElementById('pLog').addEventListener('click',function(){openLog('pause');});
+  document.getElementById('logClose').addEventListener('click',closeLog);
+  document.getElementById('logClear').addEventListener('click',function(){ errLog=[]; errSeen={}; saveLog();
+    document.getElementById('errText').value=logText(); document.getElementById('errHint').hidden=true; refreshLogBtn(); });
+  document.getElementById('logCopy').addEventListener('click',function(){ var ta=document.getElementById('errText'),b=this;
+    function done(ok){ b.textContent=ok?'Kopiert ✓':'Markiert · Strg+C drücken'; setTimeout(function(){b.textContent='Kopieren';},2200); }
+    function fallback(){ ta.focus(); ta.select(); done(false); }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(function(){done(true);},fallback); }
+    else fallback(); });
 
   // ---- menu / skins ----
   function refreshMenuStats(){document.getElementById('menuHi').textContent=fmtN(meta.best);
     document.getElementById('menuRuns').textContent=meta.runs;
     document.getElementById('menuItems').textContent=meta.items.length+'/'+UP.length;
     document.getElementById('menuSkins').textContent=meta.skins.length+'/'+SKINS.length;
-    document.getElementById('profName').textContent=current||'—';}
+    document.getElementById('profName').textContent=current||'—'; refreshLogBtn();}
   // character grid: click an unlocked one to select it, a locked one only to preview it
   var pvId=null;
   function buildSkinGrid(){var grid=document.getElementById('skinGrid');grid.innerHTML='';
