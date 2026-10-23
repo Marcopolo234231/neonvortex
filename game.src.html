@@ -644,7 +644,8 @@
     if(p.adrenT>0)p.adrenT-=dt;
     if(p.regen>0&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.regen*dt);
     // out-of-combat healing: 4s without a hit -> 4% max hull per second
-    p.safeT+=dt; if(p.safeT>4&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.04*dt);    if(p.shMax>0&&p.sh<p.shMax){p.shCd-=dt;if(p.shCd<=0){p.sh++;p.shCd=6;}}
+    p.safeT+=dt; if(p.safeT>4&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.04*dt);
+    if(p.shMax>0&&p.sh<p.shMax){p.shCd-=dt;if(p.shCd<=0){p.sh++;p.shCd=6;}}
     S.chkT-=dt; if(S.chkT<=0){S.chkT=1;checkMid();}
     if(S.xpGainT>0){S.xpGainT-=dt; if(S.xpGainT<=0)S.xpGain=0;}
 
@@ -845,7 +846,8 @@
 
   // ---- loop ----
   var last=performance.now();
-  function frame(now){var dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;    if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
+  function frame(now){var dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
+    if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
     else if(player&&(S.mode==='levelup'||S.mode==='over'||S.mode==='paused'||S.mode==='unlock')){draw();}
     else drawMenuBg(dt);
     requestAnimationFrame(frame);}
