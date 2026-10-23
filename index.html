@@ -651,9 +651,7 @@
     if(p.adrenT>0)p.adrenT-=dt;
     if(p.regen>0&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.regen*dt);
     // out-of-combat healing: 4s without a hit -> 4% max hull per second
-    p.safeT+=dt; if(p.safeT>4&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.04*dt);
-    S.xpPopT-=dt; if(S.xpPopT<=0&&S.xpAcc>0){pop(p.x,p.y-p.r-14,'+'+Math.round(S.xpAcc)+' XP','#2ff3ff');S.xpAcc=0;S.xpPopT=0.5;}
-    if(p.shMax>0&&p.sh<p.shMax){p.shCd-=dt;if(p.shCd<=0){p.sh++;p.shCd=6;}}
+    p.safeT+=dt; if(p.safeT>4&&p.hp<p.maxhp)p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.04*dt);    if(p.shMax>0&&p.sh<p.shMax){p.shCd-=dt;if(p.shCd<=0){p.sh++;p.shCd=6;}}
     S.chkT-=dt; if(S.chkT<=0){S.chkT=1;checkMid();}
     if(S.xpGainT>0){S.xpGainT-=dt; if(S.xpGainT<=0)S.xpGain=0;}
 
@@ -753,7 +751,7 @@
         o.x+=Math.cos(oa2)*pull*dt;o.y+=Math.sin(oa2)*pull*dt;}
       if(dd<(p.r+6)*(p.r+6)){ orbs.splice(i,1); run.orbs++;
         if(p.healorb>0&&Math.random()<0.06*p.healorb&&p.hp<p.maxhp){p.hp=Math.min(p.maxhp,p.hp+6);pop(p.x,p.y-p.r-6,'+6','#b6ff3c');}
-        S.xpAcc+=o.v*p.xpMul; gainXp(o.v); if(S.mode!=='playing')return; } }
+        gainXp(o.v); if(S.mode!=='playing')return; } }
 
     for(i=parts.length-1;i>=0;i--){var pt=parts[i];pt.x+=pt.vx*dt;pt.y+=pt.vy*dt;pt.vx*=0.93;pt.vy*=0.93;pt.life-=dt;if(pt.life<=0)parts.splice(i,1);}
     for(i=booms.length-1;i>=0;i--){var bm=booms[i];bm.life-=dt;bm.r=bm.mr*(1-bm.life/bm.ml);if(bm.life<=0)booms.splice(i,1);}
@@ -847,7 +845,6 @@
     hpFill.style.transform='scaleX('+Math.max(0,p.hp/p.maxhp)+')';
     xpFill.style.transform='scaleX('+Math.min(1,p.xp/p.xpNext)+')';
     lvlEl.textContent=p.lvl;timeEl.textContent=fmtTime(S.t);hpTxt.textContent=Math.ceil(p.hp)+'/'+p.maxhp;
-    document.getElementById('xpTxt').textContent=Math.floor(p.xp)+' / '+p.xpNext+' XP';
     xpTxt.textContent=Math.floor(p.xp)+' / '+p.xpNext+' XP';
     xpGainEl.textContent=S.xpGain>0?('+'+Math.round(S.xpGain)):'';
     xpGainEl.style.opacity=Math.min(1,S.xpGainT/0.5);
@@ -855,9 +852,7 @@
 
   // ---- loop ----
   var last=performance.now();
-  function frame(now){var dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
-    if(cv.clientWidth!==W||cv.clientHeight!==H)resize();
-    if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
+  function frame(now){var dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;    if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
     else if(player&&(S.mode==='levelup'||S.mode==='over'||S.mode==='paused'||S.mode==='unlock')){draw();}
     else drawMenuBg(dt);
     requestAnimationFrame(frame);}
