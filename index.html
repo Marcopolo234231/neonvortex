@@ -321,6 +321,7 @@
         <button class="btn ghost" id="quitBtn">Lauf beenden</button>
       </div>
       <p class="hint" style="margin-top:14px"><kbd>Esc</kbd> schließt die Pause wieder</p>
+      <p class="hint" id="errHint" hidden style="margin-top:8px;color:var(--danger)"></p>
     </div>
   </div>
 
@@ -892,7 +893,7 @@
         gainXp(o.v); if(S.mode!=='playing')return; } }
 
     for(i=parts.length-1;i>=0;i--){var pt=parts[i];pt.x+=pt.vx*dt;pt.y+=pt.vy*dt;pt.vx*=0.93;pt.vy*=0.93;pt.life-=dt;if(pt.life<=0)parts.splice(i,1);}
-    for(i=booms.length-1;i>=0;i--){var bm=booms[i];bm.life-=dt;bm.r=bm.mr*(1-bm.life/bm.ml);if(bm.life<=0)booms.splice(i,1);}
+    for(i=booms.length-1;i>=0;i--){var bm=booms[i];bm.life-=dt;bm.r=Math.max(0,bm.mr*(1-bm.life/bm.ml));if(bm.life<=0)booms.splice(i,1);}
     for(i=pops.length-1;i>=0;i--){var pp=pops[i];pp.y-=26*dt;pp.life-=dt;if(pp.life<=0)pops.splice(i,1);}
   }
 
@@ -916,7 +917,7 @@
       if(armed){ctx.globalAlpha=0.15;ctx.strokeStyle='#ffcf4d';ctx.lineWidth=1;ctx.beginPath();ctx.arc(mn.x,mn.y,34,0,6.283);ctx.stroke();}}
     ctx.globalAlpha=1;ctx.shadowBlur=0;
     // meteor warnings
-    for(i=0;i<warns.length;i++){var wn=warns[i],f=1-wn.t/wn.mt;
+    for(i=0;i<warns.length;i++){var wn=warns[i],f=Math.max(0,Math.min(1,1-wn.t/wn.mt));
       ctx.globalAlpha=0.25+0.35*Math.abs(Math.sin(S.t*18));ctx.strokeStyle='#ff3cac';ctx.lineWidth=2;
       ctx.beginPath();ctx.arc(wn.x,wn.y,76,0,6.283);ctx.stroke();
       ctx.globalAlpha=0.18;ctx.fillStyle='#ff3cac';ctx.beginPath();ctx.arc(wn.x,wn.y,76*f,0,6.283);ctx.fill();}
@@ -1014,12 +1015,21 @@
     if(p.shMax>0){var h='';for(var i=0;i<p.sh;i++)h+='<i></i>';pipsEl.innerHTML=h;}else pipsEl.innerHTML='';}
 
   // ---- loop ----
-  var last=performance.now();
-  function frame(now){var dt=(now-last)/1000;last=now;if(dt>0.05)dt=0.05;
-    if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
-    else if(player&&(S.mode==='levelup'||S.mode==='over'||S.mode==='paused'||S.mode==='unlock')){draw();}
-    else { drawMenuBg(dt); if(S.mode==='menu')drawPreview(dt); }
-    requestAnimationFrame(frame);}
+  var last=performance.now(), errSeen={};
+  // A frame error must never stop the loop: log it, show it once, keep running.
+  function reportError(err){ var msg=(err&&err.message)||String(err);
+    if(window.console)console.error(err);
+    if(errSeen[msg])return; errSeen[msg]=1;
+    toast('⚠ Fehler im Spiel (läuft weiter): '+msg);
+    var eh=document.getElementById('errHint'); eh.textContent='Letzter Fehler: '+msg; eh.hidden=false; }
+  function frame(now){ requestAnimationFrame(frame);
+    // rAF time can be slightly older than a performance.now() set in a click handler, so never let dt go negative
+    var dt=Math.max(0,(now-last)/1000); last=now; if(dt>0.05)dt=0.05;
+    try{
+      if(S.mode==='playing'){update(dt);if(S.mode==='playing'||S.mode==='levelup')syncHud();draw();}
+      else if(player&&(S.mode==='levelup'||S.mode==='over'||S.mode==='paused'||S.mode==='unlock')){draw();}
+      else { drawMenuBg(dt); if(S.mode==='menu')drawPreview(dt); }
+    }catch(err){ reportError(err); } }
   requestAnimationFrame(frame);
 
   // ---- pause ----
@@ -1143,7 +1153,7 @@
           if(b.kind==='fire')PV.fx.push({x:t.x,y:t.y,r:4,mr:46,life:.3,ml:.3});
           if(b.pierce>0)b.pierce--; else gone=true; } }
       if(gone)PV.b.splice(i,1); }
-    for(i=PV.fx.length-1;i>=0;i--){ var f=PV.fx[i]; f.life-=dt; f.r=f.mr*(1-f.life/f.ml); if(f.life<=0)PV.fx.splice(i,1); }
+    for(i=PV.fx.length-1;i>=0;i--){ var f=PV.fx[i]; f.life-=dt; f.r=Math.max(0,f.mr*(1-f.life/f.ml)); if(f.life<=0)PV.fx.splice(i,1); }
     g.setTransform(1,0,0,1,0,0); g.globalAlpha=1; g.shadowBlur=0; g.clearRect(0,0,w,h);
     g.strokeStyle='rgba(90,120,220,.12)'; g.lineWidth=1; g.beginPath();
     for(i=0;i<w;i+=26){g.moveTo(i,0);g.lineTo(i,h);} for(i=0;i<h;i+=26){g.moveTo(0,i);g.lineTo(w,i);} g.stroke();
