@@ -36,12 +36,23 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 
 ## ✨ Items & Level-Ups
 
-- **36 Items** mit Seltenheit (Common, Rare, Epic), stapelbar bis zu ihrem Max-Level
-- 11 Items sind von Anfang an verfügbar, **25 weitere** schaltest du über Challenges frei
+- **51 Items** mit Seltenheit (Common, Rare, Epic), stapelbar bis zu ihrem Max-Level
+- 11 Items sind von Anfang an verfügbar, **40 weitere** schaltest du über Challenges frei
 - Jedes Level-Up gibt zusätzlich **+15 % Hülle** und **+3 % Schaden**
 - Solange du noch keine Flächenwaffe hast, ist die **Schockwelle** bei jedem Level-Up garantiert
 - Kein Item kann über sein Max-Level steigen. Beim letzten Level steht **MAX** dran
 - Beispiele: Abpraller, Strahlungsfeld, Splitterkern, Kettenblitz, Orbital-Klingen, Drohne, Meteorschauer, Minenleger, Explosiv, Deflektor, Vollstrecker
+
+## 🔥 Schwierigkeiten
+
+| Stufe | Gegner | Punkte |
+|---|---|---|
+| Einfach | normale Werte | ×1 |
+| Mittel | +50 % HP, +35 % Schaden, mehr Gegner | ×1.5 |
+| Schwer | +120 % HP, +80 % Schaden, schneller | ×2.2 |
+| Unmöglich | +220 % HP, +150 % Schaden, keine Heilung ausserhalb vom Kampf | ×3.5 |
+
+7 **legendäre Items** kannst du nur auf Mittel, Schwer oder Unmöglich freischalten, zum Beispiel Laserstrahl, Singularität, Supernova und Quantenkopie. Einmal freigeschaltet, kannst du sie auf jeder Stufe benutzen.
 
 ## 💎 Pickups & Artefakte
 
@@ -52,7 +63,7 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 | Artefakt | Wirkung |
 |---|---|
 | ☠ Fluchschädel | Schwieriger: Gegner haben mehr HP und spawnen schneller. Dafür gibt es +75 % XP und +50 % Punkte |
-| ✧ Wunschkristall | Wähle ein beliebiges freigeschaltetes Item aus dem Journal |
+| ✧ Wunschkristall | Solange aktiv: Bei jeder Item-Wahl ist jedes freigeschaltete Item wählbar (mit Suche und Sortierung) |
 | ♛ Krone der Wahl | Level-Ups bieten 4 statt 3 Items |
 | ❦ Phönixfeder | Einmal wiederbeleben mit 50 % Hülle |
 | ⌛ Zeitsplitter | Alle Gegner 15 % langsamer |
