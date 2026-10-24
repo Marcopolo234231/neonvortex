@@ -31,20 +31,23 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 | Phoenix | Feuerball mit Flächenschaden | 110 | Brandmunition | Level 10 erreichen |
 | Specter | Suchgeschoss | 70 | Weisheit, Glück | 6 Läufe spielen |
 | Reaper | Schrotflinte | 140 | Schildplatten, Lebensraub | 16 000 Punkte in einem Lauf |
+| Glaive | Bumerang (trifft hin und zurück) | 105 | Großkaliber | 120 Tanks (gesamt) |
+| Viper | Dreier-Salve | 85 | Schnellfeuer | 6 Minuten überleben |
 
 ## ✨ Items & Level-Ups
 
-- **32 Items** mit Seltenheit (Common, Rare, Epic), stapelbar bis zu ihrem Max-Level
-- 11 Items sind von Anfang an verfügbar, **21 weitere** schaltest du über Challenges frei
+- **36 Items** mit Seltenheit (Common, Rare, Epic), stapelbar bis zu ihrem Max-Level
+- 11 Items sind von Anfang an verfügbar, **25 weitere** schaltest du über Challenges frei
 - Jedes Level-Up gibt zusätzlich **+15 % Hülle** und **+3 % Schaden**
 - Solange du noch keine Flächenwaffe hast, ist die **Schockwelle** bei jedem Level-Up garantiert
-- Beispiele: Kettenblitz, Orbital-Klingen, Drohne, Meteorschauer, Minenleger, Explosiv, Deflektor, Vollstrecker
+- Kein Item kann über sein Max-Level steigen. Beim letzten Level steht **MAX** dran
+- Beispiele: Abpraller, Strahlungsfeld, Splitterkern, Kettenblitz, Orbital-Klingen, Drohne, Meteorschauer, Minenleger, Explosiv, Deflektor, Vollstrecker
 
 ## 💎 Pickups & Artefakte
 
 **Auf dem Boden** liegen Drops von Gegnern: Reparaturkit, Bombe (räumt den Bildschirm frei) und Magnet (zieht alle XP-Orbs an). Etwa jede Minute taucht eine **Upgrade-Kiste** mit einem Gratis-Upgrade auf.
 
-**Artefakte** erscheinen alle 2 bis 3 Minuten irgendwo in der Arena. Ein Pfeil am Bildschirmrand zeigt, wo sie liegen.
+**Artefakte** erscheinen alle 2 bis 3 Minuten irgendwo in der Arena. Ein Pfeil am Bildschirmrand zeigt, wo sie liegen. Wie bei Risk of Rain kannst du jedes **gefundene Artefakt im Hauptmenü vor dem Lauf an- oder ausschalten**. Aktive Artefakte wirken dann ab der ersten Sekunde.
 
 | Artefakt | Wirkung |
 |---|---|
@@ -53,6 +56,9 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 | ♛ Krone der Wahl | Level-Ups bieten 4 statt 3 Items |
 | ❦ Phönixfeder | Einmal wiederbeleben mit 50 % Hülle |
 | ⌛ Zeitsplitter | Alle Gegner 15 % langsamer |
+| ◇ Glaskanone | Doppelter Schaden, aber nur halbe Hülle |
+| ⁂ Schwarmkern | Viel mehr Gegner mit 40 % weniger HP |
+| ♜ Elitesiegel | Tanks von Anfang an und doppelt so oft, dafür +40 % XP |
 
 ## 📖 Journal & Fortschritt
 
