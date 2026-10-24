@@ -210,6 +210,6 @@ http.createServer(async (req, res) => {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Nicht gefunden');
   } catch (e) {
     if (e.code === 400 || e.code === 413) return send(res, e.code, { error: e.message });
-    console.error(e); send(res, 500, { error: 'Serverfehler.' });
+    console.error(e); send(res, 500, { error: 'Serverfehler' + (e.code ? ' (' + e.code + ')' : '') + '.' });
   }
 }).listen(PORT, HOST, () => console.log('Neon Vortex läuft auf http://' + HOST + ':' + PORT + ' · Daten: ' + DATA));

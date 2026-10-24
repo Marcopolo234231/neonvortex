@@ -1518,7 +1518,7 @@
     NET.dirty=false; NET.saving=true;
     return api('PUT','api/save',{meta:meta},keep?{keepalive:true}:null).then(function(){NET.saving=false;},function(e){ NET.saving=false; NET.dirty=true;
       if(e.status===401){ toast('⚠ Sitzung abgelaufen, bitte neu anmelden. Fortschritt bleibt bis dahin hier.'); return; }
-      toast('⚠ Speichern auf dem Server fehlgeschlagen, neuer Versuch in 15 s'); NET.timer=setTimeout(pushNow,15000); }); }
+      toast('⚠ Speichern auf dem Server fehlgeschlagen ('+(e.status?e.status+': '+e.message:'keine Verbindung')+'), neuer Versuch in 15 s'); reportError(new Error('Speichern fehlgeschlagen: '+(e.status||'Netz')+' '+e.message)); NET.timer=setTimeout(pushNow,15000); }); }
   window.addEventListener('pagehide',function(){ if(NET.on&&NET.dirty)pushNow(true); });
   function setAccount(j){ NET.name=j.name; current=j.name; meta=fixMeta(j.meta||freshMeta()); pvId=null; }
   var accMode='login';
