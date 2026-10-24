@@ -98,6 +98,12 @@ Das Spiel auf GitHub zeigt jetzt Login und Registrieren, und alles wird auf dem 
 Läuft das Spiel auf einer anderen Adresse als `https://marcopolo234231.github.io`, setze sie in der Service-Datei mit
 `Environment=ALLOW_ORIGINS=https://deine-adresse` (mehrere mit Komma trennen).
 
+### Wenn die Adresse nicht gefunden wird
+
+- `tailscale status` zeigt unten „Tailscale can't reach the configured DNS servers“: `sudo tailscale set --accept-dns=false` und `sudo systemctl restart NetworkManager`
+- Der Pi heisst bei Tailscale `name-1`: Das alte Gerät auf https://login.tailscale.com/admin/machines löschen und den Pi umbenennen. Danach `sudo tailscale funnel reset` und `sudo tailscale funnel --bg 8080`
+- Testen mit `nslookup <adresse> 1.1.1.1`: Erst wenn dort IP-Adressen stehen, ist die Adresse im Internet erreichbar
+
 ### Alternative: Cloudflare Tunnel
 
 Das geht auch, für eine feste Adresse braucht es aber eine eigene Domain (ca. 10 CHF pro Jahr). Auch hier `TRUST_PROXY=1` setzen.
