@@ -140,6 +140,12 @@
     padding:11px 13px;color:var(--ink);font-family:var(--ui);font-size:15px;font-weight:600}
   .pcreate input:focus{outline:none;border-color:var(--cyan)}
 
+  .accform{display:flex;flex-direction:column;gap:9px;margin:4px 0 6px;text-align:left}
+  .accform input{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:12px 13px;
+    color:var(--ink);font-family:var(--ui);font-size:15px;font-weight:600}
+  .accform input:focus{outline:none;border-color:var(--cyan)}
+  .accform .btn{margin-top:4px}
+  .accerr{color:var(--danger);font-size:13px;font-weight:600;margin:0;min-height:17px}
   .sk-h{font-family:var(--display);font-size:11px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin:4px 0 10px}
   .skins{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:10px;margin-bottom:18px}
   .skin{position:relative;aspect-ratio:1;border-radius:13px;border:1px solid var(--line);cursor:pointer;
@@ -268,12 +274,33 @@
     </div>
   </div>
 
+  <!-- Account (only when the game runs on the Neon Vortex server) -->
+  <div class="screen" id="account" hidden>
+    <div class="card">
+      <h2 class="title" style="font-size:clamp(24px,6vw,40px)">Konto</h2>
+      <div class="jtabs">
+        <button type="button" data-acc="login" class="on">Anmelden</button>
+        <button type="button" data-acc="register">Registrieren</button>
+      </div>
+      <form class="accform" id="accForm" autocomplete="on">
+        <input id="accName" maxlength="16" placeholder="Name" autocomplete="username" spellcheck="false">
+        <input id="accPw" type="password" maxlength="200" placeholder="Passwort" autocomplete="current-password">
+        <input id="accPw2" type="password" maxlength="200" placeholder="Passwort wiederholen" autocomplete="new-password" hidden>
+        <p class="hint" id="accRules" hidden>Name: 3–16 Zeichen. Erlaubt sind Buchstaben (auch ä, ö, ü, é …), Zahlen, Leerzeichen und _ - .
+          Gross- und Kleinschreibung zählt nicht doppelt: „Marco“ und „marco“ sind derselbe Name. Passwort: mindestens 6 Zeichen, alle Zeichen erlaubt.</p>
+        <p class="accerr" id="accErr"></p>
+        <button class="btn" id="accSubmit" type="submit">Anmelden</button>
+      </form>
+      <p class="hint" style="margin-top:12px">Dein Fortschritt wird auf dem Server gespeichert und ist auf jedem Gerät da.</p>
+    </div>
+  </div>
+
   <!-- Menu -->
   <div class="screen" id="menu" hidden>
     <div class="card" style="width:min(700px,94vw)">
       <h1 class="title">Neon Vortex</h1>
       <p class="tag">Roguelike Arena</p>
-      <div class="prof">Profil: <b id="profName">—</b> <button id="switchProf">Wechseln</button></div>
+      <div class="prof"><span id="profLbl">Profil:</span> <b id="profName">—</b> <button id="switchProf">Wechseln</button></div>
       <p class="sub">Überlebe in der Arena. <b>Auto-Schuss</b> auf den nächsten Gegner — du weichst aus, sammelst XP und baust bei jedem Level einen Build. Schaffe <b>Challenges</b>, um neue Items freizuschalten.</p>
       <div class="sk-h">Charakter wählen</div>
       <div class="skins" id="skinGrid"></div>
@@ -547,7 +574,7 @@
   var meta=freshMeta();
   function pKey(n){ return 'nvp_'+n; }
   function loadProfile(n){ current=n; save('nv_current',n); meta=fixMeta(load(pKey(n),null)||freshMeta()); }
-  function saveMeta(){ if(current)save(pKey(current),meta); }
+  function saveMeta(){ if(NET.on){ if(NET.name)queuePush(); return; } if(current)save(pKey(current),meta); }
 
   // ---- state ----
   var S={mode:'profiles',t:0,spawnT:0,shake:0,flash:0,score:0,bgT:0,chkT:1};
@@ -781,7 +808,7 @@
   // ---- overlays ----
   function show(id){document.getElementById(id).hidden=false;}
   function hide(id){document.getElementById(id).hidden=true;}
-  function hideAll(){['profiles','menu','pause','levelup','over','unlock','journal','errlog'].forEach(hide);}
+  function hideAll(){['account','profiles','menu','pause','levelup','over','unlock','journal','errlog'].forEach(hide);}
   function toast(txt){var t=document.getElementById('toasts'),d=document.createElement('div');
     d.className='toast';d.textContent=txt;t.appendChild(d);
     setTimeout(function(){d.style.transition='opacity .4s';d.style.opacity='0';
@@ -798,7 +825,7 @@
     if(p.lvl>meta.bestLvl)meta.bestLvl=p.lvl;
     if(S.t>meta.bestTime)meta.bestTime=S.t;
     if(p.kills>meta.bestRunKills)meta.bestRunKills=p.kills;
-    var news=collectUnlocks(); saveMeta(); document.getElementById('overBuild').innerHTML=loadoutHtml();
+    var news=collectUnlocks(); saveMeta(); if(NET.on)pushNow(); document.getElementById('overBuild').innerHTML=loadoutHtml();
     document.getElementById('hud').hidden=true; document.getElementById('loadout').innerHTML='';
     hideAll(); afterUnlock=dest;
     document.getElementById('overUnlock').textContent=news.length?('Neu freigeschaltet: '+news.map(function(n){return n.kind==='item'?n.obj.n:n.obj.name;}).join(', ')):'';
@@ -1166,6 +1193,7 @@
 
   // ---- input ----
   window.addEventListener('keydown',function(ev){var k=ev.key.toLowerCase();
+    var tg=ev.target&&ev.target.tagName; if((tg==='INPUT'||tg==='TEXTAREA')&&ev.key!=='Escape')return;
     if(ev.key==='Escape'){ev.preventDefault();
       if(!document.getElementById('errlog').hidden){closeLog();return;}
       if(!document.getElementById('journal').hidden){closeJournal();return;}
@@ -1205,7 +1233,9 @@
     document.getElementById('menuRuns').textContent=meta.runs;
     document.getElementById('menuItems').textContent=meta.items.length+'/'+UP.length;
     document.getElementById('menuSkins').textContent=meta.skins.length+'/'+SKINS.length;
-    document.getElementById('profName').textContent=current||'—'; refreshLogBtn(); refreshShake();}
+    document.getElementById('profName').textContent=current||'—'; refreshLogBtn(); refreshShake();
+    document.getElementById('switchProf').textContent=NET.on?'Abmelden':'Wechseln';
+    document.getElementById('profLbl').textContent=NET.on?'Konto:':'Profil:';}
   // character grid: click an unlocked one to select it, a locked one only to preview it
   var pvId=null;
   function buildSkinGrid(){var grid=document.getElementById('skinGrid');grid.innerHTML='';
@@ -1313,10 +1343,66 @@
     inp.value=''; loadProfile(nm); gotoMenu();}
   document.getElementById('pcreateBtn').addEventListener('click',createProfile);
   document.getElementById('pname').addEventListener('keydown',function(ev){if(ev.key==='Enter')createProfile();});
-  document.getElementById('switchProf').addEventListener('click',function(){hide('menu');buildProfiles();show('profiles');S.mode='profiles';});
+  document.getElementById('switchProf').addEventListener('click',function(){ if(NET.on){logout();return;} hide('menu');buildProfiles();show('profiles');S.mode='profiles';});
+
+  // ---- online accounts: only active when the game is served by server/server.js (e.g. on the Raspberry Pi) ----
+  var NET={on:false,token:load('nv_token',''),name:'',dirty:false,saving:false,timer:null};
+  function api(method,url,body,extra){ var h={'Content-Type':'application/json'}; if(NET.token)h.Authorization='Bearer '+NET.token;
+    return fetch(url,Object.assign({method:method,headers:h,body:body?JSON.stringify(body):undefined},extra||{})).then(function(r){
+      return r.json().catch(function(){return {};}).then(function(j){ if(!r.ok){var e=new Error(j.error||('Fehler '+r.status));e.status=r.status;throw e;} return j; }); }); }
+  function netCheck(){ if(!window.fetch||location.protocol==='file:')return Promise.resolve(false);
+    var ac=window.AbortController?new AbortController():null, t=setTimeout(function(){if(ac)ac.abort();},2500);
+    return fetch('api/health',{cache:'no-store',signal:ac?ac.signal:undefined}).then(function(r){return r.ok?r.json():null;})
+      .then(function(j){clearTimeout(t);return !!(j&&j.app==='neonvortex');},function(){clearTimeout(t);return false;}); }
+  // saves are bundled: one write a few seconds after the last change, so the SD card on the Pi gets few writes
+  function queuePush(){ NET.dirty=true; clearTimeout(NET.timer); NET.timer=setTimeout(pushNow,2500); }
+  function pushNow(keep){ clearTimeout(NET.timer); if(!NET.dirty||!NET.name)return Promise.resolve();
+    if(NET.saving){ NET.timer=setTimeout(pushNow,1000); return Promise.resolve(); }
+    NET.dirty=false; NET.saving=true;
+    return api('PUT','api/save',{meta:meta},keep?{keepalive:true}:null).then(function(){NET.saving=false;},function(e){ NET.saving=false; NET.dirty=true;
+      if(e.status===401){ toast('⚠ Sitzung abgelaufen, bitte neu anmelden. Fortschritt bleibt bis dahin hier.'); return; }
+      toast('⚠ Speichern auf dem Server fehlgeschlagen, neuer Versuch in 15 s'); NET.timer=setTimeout(pushNow,15000); }); }
+  window.addEventListener('pagehide',function(){ if(NET.on&&NET.dirty)pushNow(true); });
+  function setAccount(j){ NET.name=j.name; current=j.name; meta=fixMeta(j.meta||freshMeta()); pvId=null; }
+  var accMode='login';
+  function setAccMode(m){ accMode=m;
+    document.querySelectorAll('[data-acc]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-acc')===m);});
+    var reg=m==='register'; document.getElementById('accPw2').hidden=!reg; document.getElementById('accRules').hidden=!reg;
+    document.getElementById('accPw').setAttribute('autocomplete',reg?'new-password':'current-password');
+    document.getElementById('accSubmit').textContent=reg?'Konto erstellen':'Anmelden'; document.getElementById('accErr').textContent=''; }
+  function showAccount(msg){ hideAll(); document.getElementById('hud').hidden=true; setAccMode(accMode); show('account'); S.mode='account';
+    document.getElementById('accErr').textContent=msg||''; document.getElementById('accName').focus(); }
+  document.querySelectorAll('[data-acc]').forEach(function(b){ b.addEventListener('click',function(){ setAccMode(b.getAttribute('data-acc')); }); });
+  var NAME_OK=/^[\p{L}\p{N}_\-. ]{3,16}$/u;
+  document.getElementById('accForm').addEventListener('submit',function(ev){ ev.preventDefault();
+    var err=document.getElementById('accErr'),btn=document.getElementById('accSubmit');
+    var nm=document.getElementById('accName').value.normalize('NFKC').trim().replace(/\s+/g,' '),
+        pw=document.getElementById('accPw').value,pw2=document.getElementById('accPw2').value;
+    if(accMode==='register'){
+      if(!NAME_OK.test(nm)){err.textContent='Name: 3–16 Zeichen, nur Buchstaben, Zahlen, Leerzeichen, _ - .';return;}
+      if(pw.length<6){err.textContent='Passwort: mindestens 6 Zeichen.';return;}
+      if(pw!==pw2){err.textContent='Die Passwörter sind nicht gleich.';return;} }
+    else if(!nm||!pw){err.textContent='Bitte Name und Passwort eingeben.';return;}
+    err.textContent=''; btn.disabled=true;
+    api('POST',accMode==='register'?'api/register':'api/login',{name:nm,password:pw}).then(function(j){
+      btn.disabled=false; NET.token=j.token; save('nv_token',j.token); setAccount(j);
+      document.getElementById('accPw').value=''; document.getElementById('accPw2').value='';
+      if(!j.meta){ NET.dirty=true; pushNow(); }
+      gotoMenu(); toast(accMode==='register'?'Willkommen, '+j.name+'! Konto erstellt.':'Angemeldet als '+j.name);
+    },function(e){ btn.disabled=false; err.textContent=e.status?e.message:'Server nicht erreichbar.'; }); });
+  function logout(){ var done=function(){ api('POST','api/logout').catch(function(){}).then(function(){
+      NET.token=''; NET.name=''; current=''; save('nv_token',''); meta=freshMeta(); showAccount(''); }); };
+    if(NET.dirty)pushNow().then(done); else done(); }
 
   // ---- boot ----
-  if(current&&profiles.indexOf(current)>=0){ loadProfile(current); gotoMenu(); }
-  else { buildProfiles(); show('profiles'); S.mode='profiles'; }
+  function localBoot(){ if(current&&profiles.indexOf(current)>=0){ loadProfile(current); gotoMenu(); }
+    else { buildProfiles(); show('profiles'); S.mode='profiles'; } }
+  S.mode='boot';
+  netCheck().then(function(ok){ if(!ok){ localBoot(); return; }
+    NET.on=true; current='';
+    if(!NET.token){ showAccount(''); return; }
+    api('GET','api/me').then(function(j){ setAccount(j); gotoMenu(); },function(e){
+      if(e.status===401){ NET.token=''; save('nv_token',''); showAccount('Bitte neu anmelden.'); }
+      else showAccount('Server nicht erreichbar. Versuch es gleich nochmal.'); }); });
 })();
 </script>

@@ -60,6 +60,10 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 | ⁂ Schwarmkern | Viel mehr Gegner mit 40 % weniger HP |
 | ♜ Elitesiegel | Tanks von Anfang an und doppelt so oft, dafür +40 % XP |
 
+## 🍓 Eigener Server (Raspberry Pi)
+
+Im Ordner `server/` liegt ein kleiner Server ohne Abhängigkeiten (nur Node.js). Er liefert das Spiel aus und speichert **Konten und Spielstände**: Konto erstellen, anmelden, kein doppelter Name, Passwörter gehasht. Läuft das Spiel über den Server, zeigt es Login und Registrieren statt der lokalen Profile. Anleitung: [server/ANLEITUNG.md](server/ANLEITUNG.md)
+
 ## 📖 Journal & Fortschritt
 
 - Das **Journal** zeigt alle Items, Charaktere und Artefakte. Was noch nicht freigeschaltet ist, ist geschwärzt und zeigt die passende Challenge.

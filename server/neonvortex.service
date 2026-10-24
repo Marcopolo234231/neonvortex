@@ -1,0 +1,16 @@
+[Unit]
+Description=Neon Vortex Spielserver
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Benutzer und Pfad anpassen, falls dein Pi-Benutzer nicht "pi" heisst
+User=pi
+WorkingDirectory=/home/pi/neonvortex
+ExecStart=/usr/bin/node /home/pi/neonvortex/server/server.js
+Environment=PORT=8080
+Environment=NV_DATA=/home/pi/neonvortex-daten
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
