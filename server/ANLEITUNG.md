@@ -67,11 +67,41 @@ Einfach den Ordner kopieren:
 tar czf neonvortex-backup.tgz -C ~ neonvortex-daten
 ```
 
-## Von unterwegs spielen
+## Über GitHub spielen, auf dem Pi speichern
 
-Im WLAN zu Hause geht es sofort. Von aussen gibt es zwei einfache Wege ohne Port-Freigabe am Router:
+Das Spiel kann auf GitHub Pages bleiben (https://marcopolo234231.github.io/neonvortex/) und trotzdem auf dem Pi speichern.
+Dafür muss der Pi eine **HTTPS-Adresse** aus dem Internet haben. Am einfachsten und gratis geht das mit **Tailscale Funnel**.
+Du brauchst dafür keine Router-Einstellungen und keine eigene Domain.
 
-- **Tailscale** (am einfachsten): auf dem Pi und auf deinem Gerät installieren, dann über die Tailscale-IP spielen. Nur deine eigenen Geräte haben Zugriff.
-- **Cloudflare Tunnel**: Damit bekommst du eine öffentliche HTTPS-Adresse, über die Freunde mitspielen können. Setze dann in der Service-Datei zusätzlich `Environment=TRUST_PROXY=1`, damit die Sperre bei Fehlversuchen die richtige IP sieht.
+1. Konto auf https://tailscale.com erstellen (gratis)
+2. Auf dem Pi:
+   ```bash
+   curl -fsSL https://tailscale.com/install.sh | sh
+   sudo tailscale up            # Link im Browser öffnen und anmelden
+   sudo tailscale funnel --bg 8080
+   ```
+   Falls Funnel noch nicht freigeschaltet ist, zeigt der Befehl einen Link. Öffne ihn und klicke auf „Enable“.
+3. Der Befehl zeigt deine Adresse, z. B. `https://raspberrypi.tail1234.ts.net`. Die bleibt immer gleich.
+4. In der Service-Datei zusätzlich `Environment=TRUST_PROXY=1` setzen, dann:
+   ```bash
+   sudo systemctl daemon-reload && sudo systemctl restart neonvortex
+   ```
+5. Auf GitHub im Repo die Datei **`config.json`** bearbeiten (Stift-Symbol) und deine Adresse eintragen:
+   ```json
+   { "server": "https://raspberrypi.tail1234.ts.net" }
+   ```
+   Speichern („Commit changes“). Nach 1 bis 2 Minuten ist es live.
 
-Die Version auf GitHub Pages bleibt wie bisher bei **lokalen Profilen**. Konten gibt es nur, wenn das Spiel über den Pi geöffnet wird.
+Das Spiel auf GitHub zeigt jetzt Login und Registrieren, und alles wird auf dem Pi gespeichert.
+**Ist der Pi aus**, spielt man automatisch mit lokalen Profilen weiter und bekommt einen Hinweis.
+
+Läuft das Spiel auf einer anderen Adresse als `https://marcopolo234231.github.io`, setze sie in der Service-Datei mit
+`Environment=ALLOW_ORIGINS=https://deine-adresse` (mehrere mit Komma trennen).
+
+### Alternative: Cloudflare Tunnel
+
+Das geht auch, für eine feste Adresse braucht es aber eine eigene Domain (ca. 10 CHF pro Jahr). Auch hier `TRUST_PROXY=1` setzen.
+
+## Nur zu Hause
+
+Im WLAN geht `http://<IP-vom-Pi>:8080` sofort, ohne Tailscale.

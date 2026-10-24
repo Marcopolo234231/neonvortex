@@ -62,7 +62,7 @@ Jeder Charakter hat eigene Werte, eine eigene Schussart und startet mit Items au
 
 ## 🍓 Eigener Server (Raspberry Pi)
 
-Im Ordner `server/` liegt ein kleiner Server ohne Abhängigkeiten (nur Node.js). Er liefert das Spiel aus und speichert **Konten und Spielstände**: Konto erstellen, anmelden, kein doppelter Name, Passwörter gehasht. Läuft das Spiel über den Server, zeigt es Login und Registrieren statt der lokalen Profile. Anleitung: [server/ANLEITUNG.md](server/ANLEITUNG.md)
+Im Ordner `server/` liegt ein kleiner Server ohne Abhängigkeiten (nur Node.js). Er liefert das Spiel aus und speichert **Konten und Spielstände**: Konto erstellen, anmelden, kein doppelter Name, Passwörter gehasht. Läuft das Spiel über den Server, zeigt es Login und Registrieren statt der lokalen Profile. Das geht auch mit der Version auf GitHub Pages: Server-Adresse in `config.json` eintragen (z. B. über Tailscale Funnel). Anleitung: [server/ANLEITUNG.md](server/ANLEITUNG.md)
 
 ## 📖 Journal & Fortschritt
 

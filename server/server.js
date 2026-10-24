@@ -12,7 +12,9 @@ const HOST = process.env.HOST || '0.0.0.0';
 const DATA = path.resolve(process.env.NV_DATA || path.join(__dirname, 'data'));
 const USERS = path.join(DATA, 'users');
 const GAME = path.resolve(__dirname, '..', 'index.html');
-const TRUST_PROXY = process.env.TRUST_PROXY === '1'; // set when running behind Cloudflare Tunnel / nginx
+const TRUST_PROXY = process.env.TRUST_PROXY === '1'; // set when running behind Tailscale Funnel / Cloudflare Tunnel / nginx
+// web pages that may use this server from another address (the GitHub Pages version of the game)
+const ALLOW_ORIGINS = (process.env.ALLOW_ORIGINS || 'https://marcopolo234231.github.io').split(',').map(s => s.trim()).filter(Boolean);
 const SESSION_DAYS = 180, MAX_SESSIONS = 10, MAX_SAVE = 64 * 1024, MAX_BODY = 128 * 1024;
 
 fs.mkdirSync(USERS, { recursive: true });
@@ -185,7 +187,15 @@ const routes = {
 };
 
 http.createServer(async (req, res) => {
-  const url = req.url.split('?')[0];
+  const url = req.url.split('?')[0], origin = req.headers.origin;
+  if (origin && ALLOW_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Max-Age', '600');
+  }
+  if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   try {
     const r = routes[req.method + ' ' + url];
     if (r) { const [code, obj] = await r(req); return send(res, code, obj); }

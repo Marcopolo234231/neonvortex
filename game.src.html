@@ -1346,14 +1346,19 @@
   document.getElementById('switchProf').addEventListener('click',function(){ if(NET.on){logout();return;} hide('menu');buildProfiles();show('profiles');S.mode='profiles';});
 
   // ---- online accounts: only active when the game is served by server/server.js (e.g. on the Raspberry Pi) ----
-  var NET={on:false,token:load('nv_token',''),name:'',dirty:false,saving:false,timer:null};
+  var NET={on:false,base:'',token:load('nv_token',''),name:'',dirty:false,saving:false,timer:null};
   function api(method,url,body,extra){ var h={'Content-Type':'application/json'}; if(NET.token)h.Authorization='Bearer '+NET.token;
-    return fetch(url,Object.assign({method:method,headers:h,body:body?JSON.stringify(body):undefined},extra||{})).then(function(r){
+    return fetch(NET.base+url,Object.assign({method:method,headers:h,body:body?JSON.stringify(body):undefined},extra||{})).then(function(r){
       return r.json().catch(function(){return {};}).then(function(j){ if(!r.ok){var e=new Error(j.error||('Fehler '+r.status));e.status=r.status;throw e;} return j; }); }); }
-  function netCheck(){ if(!window.fetch||location.protocol==='file:')return Promise.resolve(false);
-    var ac=window.AbortController?new AbortController():null, t=setTimeout(function(){if(ac)ac.abort();},2500);
-    return fetch('api/health',{cache:'no-store',signal:ac?ac.signal:undefined}).then(function(r){return r.ok?r.json():null;})
+  function ping(base){ var ac=window.AbortController?new AbortController():null, t=setTimeout(function(){if(ac)ac.abort();},4000);
+    return fetch(base+'api/health',{cache:'no-store',signal:ac?ac.signal:undefined}).then(function(r){return r.ok?r.json():null;})
       .then(function(j){clearTimeout(t);return !!(j&&j.app==='neonvortex');},function(){clearTimeout(t);return false;}); }
+  // 1) game served by the Pi itself -> same address. 2) otherwise (GitHub Pages) -> address from config.json
+  function netCheck(){ if(!window.fetch||location.protocol==='file:')return Promise.resolve(false);
+    return ping('').then(function(ok){ if(ok){NET.base='';return true;}
+      return fetch('config.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(c){
+        var u=String(c.server||'').trim(); if(!/^https?:\/\//.test(u))return false; if(u.slice(-1)!=='/')u+='/';
+        return ping(u).then(function(ok2){ if(ok2){NET.base=u;return true;} NET.offline=true; return false; }); }); }); }
   // saves are bundled: one write a few seconds after the last change, so the SD card on the Pi gets few writes
   function queuePush(){ NET.dirty=true; clearTimeout(NET.timer); NET.timer=setTimeout(pushNow,2500); }
   function pushNow(keep){ clearTimeout(NET.timer); if(!NET.dirty||!NET.name)return Promise.resolve();
@@ -1398,7 +1403,7 @@
   function localBoot(){ if(current&&profiles.indexOf(current)>=0){ loadProfile(current); gotoMenu(); }
     else { buildProfiles(); show('profiles'); S.mode='profiles'; } }
   S.mode='boot';
-  netCheck().then(function(ok){ if(!ok){ localBoot(); return; }
+  netCheck().then(function(ok){ if(!ok){ localBoot(); if(NET.offline)toast('⚠ Pi-Server nicht erreichbar · du spielst mit lokalen Profilen'); return; }
     NET.on=true; current='';
     if(!NET.token){ showAccount(''); return; }
     api('GET','api/me').then(function(j){ setAccount(j); gotoMenu(); },function(e){
