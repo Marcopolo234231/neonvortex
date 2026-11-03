@@ -291,6 +291,7 @@
         <input id="pname" maxlength="16" placeholder="Neuer Profilname…" autocomplete="off">
         <button class="btn" id="pcreateBtn" style="padding:11px 20px;font-size:13px">Erstellen</button>
       </div>
+      <p class="hint" style="margin-top:12px"><button class="langBtn" style="all:unset;cursor:pointer;color:var(--muted)">🌐 Deutsch</button></p>
     </div>
   </div>
 
@@ -306,12 +307,13 @@
         <input id="accName" maxlength="16" placeholder="Name" autocomplete="username" spellcheck="false">
         <input id="accPw" type="password" maxlength="200" placeholder="Passwort" autocomplete="current-password">
         <input id="accPw2" type="password" maxlength="200" placeholder="Passwort wiederholen" autocomplete="new-password" hidden>
-        <p class="hint" id="accRules" hidden>Name: 3–16 Zeichen. Erlaubt sind Buchstaben (auch ä, ö, ü, é …), Zahlen, Leerzeichen und _ - .
+        <p class="hint" id="accRules" hidden data-en="Name: 3–16 characters. Letters (also ä, ö, ü, é …), digits, spaces and _ - . are allowed. Upper and lower case do not count twice: “Marco” and “marco” are the same name. Password: at least 6 characters, any character allowed.">Name: 3–16 Zeichen. Erlaubt sind Buchstaben (auch ä, ö, ü, é …), Zahlen, Leerzeichen und _ - .
           Gross- und Kleinschreibung zählt nicht doppelt: „Marco“ und „marco“ sind derselbe Name. Passwort: mindestens 6 Zeichen, alle Zeichen erlaubt.</p>
         <p class="accerr" id="accErr"></p>
         <button class="btn" id="accSubmit" type="submit">Anmelden</button>
       </form>
       <p class="hint" style="margin-top:12px">Dein Fortschritt wird auf dem Server gespeichert und ist auf jedem Gerät da.</p>
+      <p class="hint" style="margin-top:8px"><button class="langBtn" style="all:unset;cursor:pointer;color:var(--muted)">🌐 Deutsch</button></p>
     </div>
   </div>
 
@@ -321,7 +323,7 @@
       <h1 class="title">Neon Vortex</h1>
       <p class="tag">Roguelike Arena</p>
       <div class="prof"><span id="profLbl">Profil:</span> <b id="profName">—</b> <button id="switchProf">Wechseln</button></div>
-      <p class="sub">Überlebe in der Arena. <b>Auto-Schuss</b> auf den nächsten Gegner — du weichst aus, sammelst XP und baust bei jedem Level einen Build. Schaffe <b>Challenges</b>, um neue Items freizuschalten.</p>
+      <p class="sub" data-en="Survive in the arena. &lt;b&gt;Auto-fire&lt;/b&gt; at the nearest enemy — you dodge, collect XP and build your loadout with every level. Complete &lt;b&gt;challenges&lt;/b&gt; to unlock new items.">Überlebe in der Arena. <b>Auto-Schuss</b> auf den nächsten Gegner — du weichst aus, sammelst XP und baust bei jedem Level einen Build. Schaffe <b>Challenges</b>, um neue Items freizuschalten.</p>
       <div class="sk-h">Charakter wählen</div>
       <div class="skins" id="skinGrid"></div>
       <div class="charinfo">
@@ -348,8 +350,9 @@
         <span><kbd>W A S D</kbd> / <kbd>Pfeile</kbd></span>
         <span><kbd>Esc</kbd> Pause</span>
         <span><button class="prof" id="shakeBtn" style="all:unset;cursor:pointer;color:var(--muted)">📳 Wackeln: An</button></span>
+        <span><button class="prof langBtn" style="all:unset;cursor:pointer;color:var(--muted)">🌐 Deutsch</button></span>
       </div>
-      <p class="hint" style="margin-top:14px">Items <b id="menuItems">0/0</b> · Charaktere <b id="menuSkins">0/0</b> · Beste <b id="menuHi">0</b> · Läufe <b id="menuRuns">0</b></p>
+      <p class="hint" style="margin-top:14px" data-en="Items &lt;b id=&quot;menuItems&quot;&gt;0/0&lt;/b&gt; · Characters &lt;b id=&quot;menuSkins&quot;&gt;0/0&lt;/b&gt; · Best &lt;b id=&quot;menuHi&quot;&gt;0&lt;/b&gt; · Runs &lt;b id=&quot;menuRuns&quot;&gt;0&lt;/b&gt;">Items <b id="menuItems">0/0</b> · Charaktere <b id="menuSkins">0/0</b> · Beste <b id="menuHi">0</b> · Läufe <b id="menuRuns">0</b></p>
     </div>
   </div>
 
@@ -397,7 +400,7 @@
         <button class="btn ghost" id="pShake">📳 Wackeln: An</button>
         <button class="btn ghost" id="quitBtn">Lauf beenden</button>
       </div>
-      <p class="hint" style="margin-top:14px"><kbd>Esc</kbd> schließt die Pause wieder</p>
+      <p class="hint" style="margin-top:14px" data-en="&lt;kbd&gt;Esc&lt;/kbd&gt; closes the pause menu"><kbd>Esc</kbd> schließt die Pause wieder</p>
       <p class="hint" id="errHint" hidden style="margin-top:8px;color:var(--danger)"></p>
     </div>
   </div>
@@ -417,7 +420,7 @@
         </select>
       </div>
       <div class="choices" id="choices"></div>
-      <button class="reroll" id="rerollBtn">↻ Neu würfeln (<span id="rerollN">1</span>) · <kbd>R</kbd></button>
+      <button class="reroll" id="rerollBtn" data-en="↻ Reroll (&lt;span id=&quot;rerollN&quot;&gt;1&lt;/span&gt;) · &lt;kbd&gt;R&lt;/kbd&gt;">↻ Neu würfeln (<span id="rerollN">1</span>) · <kbd>R</kbd></button>
     </div>
   </div>
 
@@ -457,6 +460,87 @@
 <script>
 (function(){
   "use strict";
+
+  // ---- language: German is the source text, English comes from TR. Browser language decides, the 🌐 button switches ----
+  var LANG=(function(){ var l=load('nv_lang',''); if(l==='de'||l==='en')return l;
+    return /^de\b/i.test(navigator.language||'')?'de':'en'; })();
+  var LOC=LANG==='en'?'en-US':'de-CH';
+  document.documentElement.lang=LANG;
+  function L(s){ if(LANG==='de')return s; var t=TR[s]; return t===undefined?s:t; }
+  // F('Text {0} mit {1}', a, b): translate, then fill in the values
+  function F(s){ var a=arguments; return L(s).replace(/\{(\d)\}/g,function(m,i){ return a[+i+1]; }); }
+  var TR={
+    // HUD & screens
+    'Hülle':'Hull','Erfahrung':'Experience','Profile':'Profiles',
+    'Wähle ein Profil oder lege ein neues an. Dein Fortschritt wird lokal in diesem Browser gespeichert.':'Pick a profile or create a new one. Your progress is saved locally in this browser.',
+    'Neuer Profilname…':'New profile name…','Erstellen':'Create','Konto':'Account','Anmelden':'Log in','Registrieren':'Sign up',
+    'Passwort':'Password','Passwort wiederholen':'Repeat password',
+    'Dein Fortschritt wird auf dem Server gespeichert und ist auf jedem Gerät da.':'Your progress is saved on the server and available on every device.',
+    'Profil:':'Profile:','Konto:':'Account:','Wechseln':'Switch','Abmelden':'Log out','Charakter wählen':'Choose character',
+    'Schussvorschau des Charakters':'Shot preview of the character','Schwierigkeit':'Difficulty','Artefakte für den Lauf':'Artifacts for the run',
+    '🧾 Protokoll':'🧾 Log','Pfeile':'Arrows','📳 Wackeln: An':'📳 Shake: On','📳 Wackeln: ':'📳 Shake: ','An':'On','Aus':'Off',
+    'Charaktere':'Characters','Artefakte':'Artifacts','Items freigeschaltet':'Items unlocked','Charaktere freigeschaltet':'Characters unlocked',
+    'Artefakte entdeckt':'Artifacts discovered','Zurück':'Back','Fehlerprotokoll':'Error log',
+    'Die letzten Fehler mit Zeitpunkt und Spielsituation. Kopiere das Protokoll und schick es weiter, wenn etwas hakt.':'The latest errors with time and game situation. Copy the log and send it on if something goes wrong.',
+    'Kopieren':'Copy','Leeren':'Clear','Kopiert ✓':'Copied ✓','Markiert · Strg+C drücken':'Selected · press Ctrl+C',
+    'Weiter':'Continue','Lauf beenden':'End run','Zeit':'Time','Stufe':'Difficulty','Beste':'Best','Nochmal':'Play again','Hauptmenü':'Main menu',
+    '🔍 Item suchen…':'🔍 Search items…','Sortieren':'Sort','Sortieren: Seltenheit':'Sort: rarity','Sortieren: Name A–Z':'Sort: name A–Z',
+    'Sortieren: Dein Level':'Sort: your level','Sortieren: Noch nicht gewählt':'Sort: not picked yet',
+    'Challenge geschafft':'Challenge complete','Freigeschaltet!':'Unlocked!','Zerstört':'Destroyed','Löschen':'Delete',
+    // in-game messages
+    '{0} wird nach dem Lauf freigeschaltet':'{0} unlocks after the run','Charakter {0} nach dem Lauf':'Character {0} after the run',
+    '+Hülle':'+Hull','✦ Ein Artefakt ist erschienen: {0} (folge dem Pfeil)':'✦ An artifact appeared: {0} (follow the arrow)',
+    ' · neu · ab jetzt im Menü aktivierbar':' · new · can now be switched on in the menu','Upgrade-Kiste':'Upgrade Chest',
+    '<b>✧ Wunschkristall:</b> wähle ein beliebiges Item ({0} verfügbar)':'<b>✧ Wish Crystal:</b> pick any item ({0} available)',
+    ' · Belohnung: +15% Hülle & +3% Schaden':' · Reward: +15% hull & +3% damage',
+    'Gratis-Upgrade · wähle mit <b>1–{0}</b> oder Klick.':'Free upgrade · pick with <b>1–{0}</b> or click.',
+    'Belohnung: <b>+15% Hülle</b> & <b>+3% Schaden</b> · wähle mit <b>1–{0}</b> oder Klick.':'Reward: <b>+15% hull</b> & <b>+3% damage</b> · pick with <b>1–{0}</b> or click.',
+    'Kein Item gefunden.':'No item found.','Neu freigeschaltet: ':'Newly unlocked: ','Charakter · ':'Character · ',
+    '❦ Phönixfeder: wiederbelebt!':'❦ Phoenix Feather: revived!',' auf {0}':' on {0}',' oder schwerer':' or harder',
+    // journal & menu
+    'Max. Level ':'Max level ',' Hülle. ':' hull. ','Artefakt':'Artifact',
+    '🔒 Noch nicht gefunden. Taucht zufällig in der Arena auf. Danach kannst du es vor jedem Lauf im Menü aktivieren.':'🔒 Not found yet. Appears randomly in the arena. After that you can switch it on in the menu before every run.',
+    ' Freischalten: ':' Unlock: ','Tempo':'Speed','Feuerrate':'Fire rate','Schaden':'Damage','Start-Items:':'Starting items:','keine':'none',
+    'Noch nicht gefunden':'Not found yet','🔒 Finde dieses Artefakt zuerst in der Arena.':'🔒 Find this artifact in the arena first.',
+    'Aus: ':'Off: ','An: ':'On: ','{0} aktiv · Klicke ein Artefakt zum An- oder Ausschalten':'{0} active · click an artifact to switch it on or off',
+    'Gefundene Artefakte kannst du hier vor dem Lauf aktivieren.':'Artifacts you have found can be switched on here before a run.',
+    '×{0} Punkte':'×{0} points','Noch kein Profil — leg unten eines an.':'No profile yet — create one below.',
+    'Beste {0} · {1} Läufe · {2}/{3} Items':'Best {0} · {1} runs · {2}/{3} items',
+    // errors & log
+    'Unbekannter Fehler':'Unknown error','⚠ Fehler im Spiel (läuft weiter): ':'⚠ Error in the game (still running): ',
+    'Letzter Fehler: {0} · Details im Protokoll':'Last error: {0} · details in the log','Neon Vortex · Fehlerprotokoll · ':'Neon Vortex · Error log · ',
+    'Keine Fehler aufgezeichnet. 👍':'No errors recorded. 👍',
+    // accounts & server
+    'Konto erstellen':'Create account','Name: 3–16 Zeichen, nur Buchstaben, Zahlen, Leerzeichen, _ - .':'Name: 3–16 characters, only letters, digits, spaces, _ - .',
+    'Passwort: mindestens 6 Zeichen.':'Password: at least 6 characters.','Die Passwörter sind nicht gleich.':'The passwords do not match.',
+    'Bitte Name und Passwort eingeben.':'Please enter name and password.','Willkommen, {0}! Konto erstellt.':'Welcome, {0}! Account created.',
+    'Angemeldet als {0}':'Logged in as {0}','Server nicht erreichbar.':'Server not reachable.',
+    '⚠ Pi-Server nicht erreichbar · du spielst mit lokalen Profilen':'⚠ Pi server not reachable · you are playing with local profiles',
+    'Bitte neu anmelden.':'Please log in again.','Server nicht erreichbar. Versuch es gleich nochmal.':'Server not reachable. Try again in a moment.',
+    '⚠ Sitzung abgelaufen, bitte neu anmelden. Fortschritt bleibt bis dahin hier.':'⚠ Session expired, please log in again. Your progress stays here until then.',
+    '⚠ Speichern auf dem Server fehlgeschlagen ({0}), neuer Versuch in 15 s':'⚠ Saving on the server failed ({0}), retrying in 15 s',
+    'keine Verbindung':'no connection','Fehler ':'Error ',
+    'Der Name braucht mindestens einen Buchstaben oder eine Zahl.':'The name needs at least one letter or digit.',
+    'Passwort: höchstens 200 Zeichen.':'Password: at most 200 characters.','Zu viele neue Konten. Versuch es später nochmal.':'Too many new accounts. Try again later.',
+    'Gerade werden sehr viele Konten erstellt. Versuch es in einer Stunde nochmal.':'Lots of accounts are being created right now. Try again in an hour.',
+    'Der Server nimmt gerade keine neuen Konten an.':'The server is not accepting new accounts right now.','Dieser Name ist schon vergeben.':'This name is already taken.',
+    'Zu viele Fehlversuche. Warte 15 Minuten.':'Too many failed attempts. Wait 15 minutes.','Name oder Passwort falsch.':'Wrong name or password.',
+    'Ungültiger Spielstand.':'Invalid save.','Spielstand zu gross.':'Save too large.','Zu viele Speicherungen in kurzer Zeit.':'Too many saves in a short time.',
+    'Speicher auf dem Server ist voll.':'The server storage is full.','Konto nicht gefunden.':'Account not found.','Altes Passwort ist falsch.':'Old password is wrong.',
+    'Server ausgelastet, versuch es gleich nochmal.':'Server busy, try again in a moment.','Zu gross':'Too large','Ungültige Daten':'Invalid data',
+    'Unbekannte Anfrage.':'Unknown request.','Serverfehler.':'Server error.'
+  };
+  // texts in the HTML: plain text nodes and a few attributes via TR, mixed text with markup via data-en
+  function translatePage(){ if(LANG==='de')return; var root=document.getElementById('stage');
+    root.querySelectorAll('[data-en]').forEach(function(el){ el.innerHTML=el.getAttribute('data-en'); });
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null),n,list=[];
+    while((n=w.nextNode()))list.push(n);
+    list.forEach(function(t){ var raw=t.nodeValue,k=raw.trim(); if(k&&TR[k]!==undefined)t.nodeValue=raw.replace(k,TR[k]); });
+    root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(function(el){ ['placeholder','title','aria-label'].forEach(function(a){
+      var v=el.getAttribute(a); if(v&&TR[v]!==undefined)el.setAttribute(a,TR[v]); }); }); }
+  function refreshLangBtns(){ document.querySelectorAll('.langBtn').forEach(function(b){ b.textContent=LANG==='en'?'🌐 English · Deutsch?':'🌐 Deutsch · English?'; }); }
+  document.querySelectorAll('.langBtn').forEach(function(b){ b.addEventListener('click',function(){
+    save('nv_lang',LANG==='en'?'de':'en'); if(typeof NET!=='undefined'&&NET.on&&NET.dirty)pushNow(true); location.reload(); }); });
   var cv=document.getElementById('game'), ctx=cv.getContext('2d');
   var W=0,H=0,dpr=1;
   function resize(){ dpr=Math.min(window.devicePixelRatio||1,2); W=cv.clientWidth; H=cv.clientHeight;
@@ -583,7 +667,7 @@
     {n:'Unmöglich',c:'#ff3cac',hp:3.2,dmg:2.5,spd:1.22,spawn:0.6,score:3.5,heal:false,d:'Gegner +220% HP, +150% Schaden, keine Heilung außerhalb vom Kampf · ×3.5 Punkte'}
   ];
   var DF=DIFFS[0];
-  function chText(ch){ return ch.txt+(ch.d?' auf '+DIFFS[ch.d].n+(ch.d<3?' oder schwerer':''):''); }
+  function chText(ch){ return ch.txt+(ch.d?F(' auf {0}',DIFFS[ch.d].n)+(ch.d<3?L(' oder schwerer'):''):''); }
 
   // ---- artifacts (found in the arena, last for the run) ----
   var ARTS=[
@@ -622,6 +706,55 @@
       hp:85,spd:262,rate:0.62,dmg:10,shot:'burst',start:['rate'],desc:'Feuert schnelle Dreier-Salven. Stark gegen einzelne Ziele.'}
   ];
   function skinById(id){ for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i]; return SKINS[0]; }
+
+  // ---- English names and descriptions for the game data ----
+  var UP_EN={rate:['Rapid Fire','+20% fire rate'],dmg:['Damage','+30% projectile damage'],spd:['Thrust','+12% speed'],
+    bspd:['Overcharge','+16% projectile speed & range'],mag:['Magnet','+40% pickup radius'],hp:['Plating','+30 max hull & full heal'],
+    regen:['Regeneration','+1.2 hull per second'],multi:['Multishot','+1 projectile per volley'],armor:['Shield Plates','-12% damage taken'],
+    crit:['Precision','+10% crit chance (2.2× damage)'],xp:['Wisdom','+15% experience'],bounty:['Bounty','+20% points per kill'],
+    nova:['Shockwave','Periodic area blast around you'],size:['Big Caliber','Bigger projectiles, +10% damage'],
+    healorb:['Healing Drops','XP orbs sometimes heal 6 hull'],thorns:['Thorn Hull','Enemies touching your hull take damage'],
+    boom:['Explosive','Hits explode with area damage'],freeze:['Frost Core','Hits slow enemies down'],burn:['Incendiary Ammo','Hits set enemies on fire'],
+    adren:['Adrenaline','Kills briefly boost speed & fire rate'],back:['Tail Gun','+1 shot to the rear'],pierce:['Piercing','Projectiles pierce +1 enemy'],
+    rerollUp:['Lucky Dice','+2 rerolls for this run'],mine:['Minelayer','Drops explosive mines regularly'],orbit:['Orbital Blades','+1 blade circling you'],
+    shield:['Deflector','+1 shield that blocks one hit'],luck:['Luck','Rare & epic items show up more often'],chain:['Chain Lightning','Hits jump on as lightning'],
+    execute:['Executioner','Enemies with low HP die instantly'],leech:['Lifesteal','Kills heal +1.5 hull'],drone:['Drone','+1 drone that fires on its own'],
+    meteor:['Meteor Shower','Meteors strike your enemies'],ricochet:['Ricochet','Projectiles bounce to +1 more enemy'],critdmg:['Weak Spot','+40% crit damage'],
+    aura:['Radiation Field','Nearby enemies take constant damage'],split:['Shard Core','Defeated enemies burst into projectiles'],
+    overclock:['Overclock','+10% fire rate & +10% projectile speed'],vitality:['Life Core','+15 max hull & +0.4 hull per second'],
+    scatter:['Scatter Fire','+2 shots angled to the sides'],greed:['Greed','+10% experience & +50% ground drops'],kinetic:['Impact','Hits knock enemies back'],
+    cooldown:['Cooling System','Abilities (Shockwave, mines, laser …) recharge 12% faster'],giant:['Giant Slayer','+25% damage against tanks'],
+    second:['Second Chance','Revive once with 50% hull'],vortex:['Vortex Core','Regularly pulls enemies toward you and damages them'],
+    retal:['Retaliation','When you get hit, your hull explodes'],laser:['Laser Beam','Regularly fires a laser that pierces everything'],
+    bhole:['Singularity','Creates black holes that suck in enemies'],overdrive:['Overload','Up to +60% damage per level, the less hull you have'],
+    snova:['Supernova','A huge explosion across the whole screen every 20 s'],quantum:['Quantum Copy','25% chance per level to fire each volley twice']};
+  var DIFF_EN=[['Easy','The normal arena. Good for learning.'],['Medium','Enemies +50% HP, +35% damage, spawn faster · ×1.5 points'],
+    ['Hard','Enemies +120% HP, +80% damage, faster · ×2.2 points'],['Impossible','Enemies +220% HP, +150% damage, no healing outside combat · ×3.5 points']];
+  var ART_EN={curse:['Curse Skull','Enemies have +60% HP and spawn faster, but +75% XP and +50% points'],
+    wish:['Wish Crystal','Instantly pick any unlocked item from your journal'],crown:['Crown of Choice','Level-ups offer 4 items instead of 3'],
+    feather:['Phoenix Feather','Revive once with 50% hull'],hourglass:['Time Shard','All enemies move 15% slower'],
+    glass:['Glass Cannon','Double damage, but only half the hull'],swarm:['Swarm Core','Many more enemies with 40% less HP'],
+    elite:['Elite Seal','Tanks from the start and twice as often, but +40% XP']};
+  var SHOTS_EN={single:'Single shot',twin:'Twin shot',lance:'Piercing lance',fire:'Fireball · area',homing:'Homing shot',shotgun:'Shotgun',boomer:'Boomerang · returns',burst:'Triple burst'};
+  var SKIN_EN={dart:'All-rounder without weaknesses. Good for beginners.',wing:'Fast and fragile. Fires two parallel shots.',
+    arrow:'Slow, hard-hitting lances that pierce several enemies.',phoenix:'Fireballs explode on impact and deal area damage.',
+    specter:'Shots find their own target. Little hull.',reaper:'Close-combat tank: a shotgun with lots of pellets.',
+    glaive:'Boomerang blades fly out and come back. They hit both ways.',viper:'Fires fast triple bursts. Strong against single targets.'};
+  // challenge texts follow a few patterns, so they are translated by rule
+  function chEn(t){ var R=[[/^Erreiche Level (\d+)$/,'Reach level $1'],[/^(.+) Punkte in einem Lauf$/,'$1 points in one run'],
+      [/^Besiege (.+) Tanks \(gesamt\)$/,'Defeat $1 tanks (total)'],[/^Sammle (.+) XP-Orbs \(gesamt\)$/,'Collect $1 XP orbs (total)'],
+      [/^Überlebe (\d+) Minuten$/,'Survive $1 minutes'],[/^(.+) Kills in einem Lauf$/,'$1 kills in one run'],[/^Spiele (\d+) Läufe$/,'Play $1 runs'],
+      [/^(.+) Kills \(gesamt\)$/,'$1 kills (total)'],[/^Würfle (\d+)-mal neu \(gesamt\)$/,'Reroll $1 times (total)']];
+    for(var i=0;i<R.length;i++)if(R[i][0].test(t))return t.replace(R[i][0],R[i][1]).replace(/(\d) (\d{3})/g,'$1,$2');
+    return t; }
+  if(LANG==='en'){
+    UP.forEach(function(u){ var e=UP_EN[u.id]; if(e){u.n=e[0];u.d=e[1];} });
+    Object.keys(CH).forEach(function(k){ CH[k].txt=chEn(CH[k].txt); });
+    DIFFS.forEach(function(d,i){ d.n=DIFF_EN[i][0]; d.d=DIFF_EN[i][1]; });
+    ARTS.forEach(function(a){ var e=ART_EN[a.id]; if(e){a.n=e[0];a.d=e[1];} });
+    Object.keys(SHOTS_EN).forEach(function(k){ SHOTS[k]=SHOTS_EN[k]; });
+    SKINS.forEach(function(s){ if(SKIN_EN[s.id])s.desc=SKIN_EN[s.id]; if(s.unlock)s.unlock.txt=chEn(s.unlock.txt); });
+  }
   function drawShip(c,col,ac,shape,r){
     c.save();c.shadowColor=col;c.shadowBlur=14;c.fillStyle=col;c.beginPath();
     if(shape===0){c.moveTo(0,-r-3);c.lineTo(r-2,r);c.lineTo(0,r-5);c.lineTo(-(r-2),r);}
@@ -675,7 +808,7 @@
   function rnd(a,b){return a+Math.random()*(b-a);}
   function dist2(ax,ay,bx,by){var dx=ax-bx,dy=ay-by;return dx*dx+dy*dy;}
   function fmtTime(s){var m=Math.floor(s/60),r=Math.floor(s%60);return m+':'+(r<10?'0':'')+r;}
-  function fmtN(n){return Math.floor(n).toLocaleString('de-CH');}
+  function fmtN(n){return Math.floor(n).toLocaleString(LOC);}
 
   // ---- challenges ----
   function runCtx(final){ var p=player;
@@ -691,9 +824,9 @@
     if(S.diff>=ch.d)v=Math.max(v,cur); return v>=ch.v; }
   function checkMid(){ var c=runCtx(false);
     UP.forEach(function(u){ var ch=CH[u.id]; if(!ch||meta.items.indexOf(u.id)>=0||run.flag[u.id])return;
-      if(metCh(ch,c)){ run.flag[u.id]=1; toast('🏆 '+chText(ch)+' → '+u.n+' wird nach dem Lauf freigeschaltet'); } });
+      if(metCh(ch,c)){ run.flag[u.id]=1; toast('🏆 '+chText(ch)+' → '+F('{0} wird nach dem Lauf freigeschaltet',u.n)); } });
     SKINS.forEach(function(s){ if(!s.unlock||meta.skins.indexOf(s.id)>=0||run.flag['s_'+s.id])return;
-      if(met(s.unlock,c)){ run.flag['s_'+s.id]=1; toast('🏆 '+s.unlock.txt+' → Charakter '+s.name+' nach dem Lauf'); } }); }
+      if(met(s.unlock,c)){ run.flag['s_'+s.id]=1; toast('🏆 '+s.unlock.txt+' → '+F('Charakter {0} nach dem Lauf',s.name)); } }); }
   function collectUnlocks(){ var c=runCtx(true), news=[];
     UP.forEach(function(u){ var ch=CH[u.id]; if(ch&&meta.items.indexOf(u.id)<0&&metCh(ch,c,true)){ meta.items.push(u.id); news.push({kind:'item',obj:u}); } });
     SKINS.forEach(function(s){ if(s.unlock&&meta.skins.indexOf(s.id)<0&&met(s.unlock,c)){ meta.skins.push(s.id); news.push({kind:'skin',obj:s}); } });
@@ -807,16 +940,16 @@
     for(var i=enemies.length-1;i>=0;i--){var e=enemies[i];
       if(e&&dist2(p.x,p.y,e.x,e.y)<vr*vr)hurtEnemy(e,e.tank?e.mhp*0.5:e.hp+1,false);} }
   function takeDrop(type){ var p=player;
-    if(type==='heal'){ p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.35); pop(p.x,p.y-p.r-8,'+Hülle','#b6ff3c'); }
+    if(type==='heal'){ p.hp=Math.min(p.maxhp,p.hp+p.maxhp*0.35); pop(p.x,p.y-p.r-8,L('+Hülle'),'#b6ff3c'); }
     else if(type==='magnet'){ for(var i=0;i<orbs.length;i++)orbs[i].vac=true; pop(p.x,p.y-p.r-8,'Magnet!','#2ff3ff'); }
     else if(type==='bomb'){ bombBlast(); pop(p.x,p.y-p.r-8,'BOOM','#ff6a3c'); }
     else if(type==='chest'){ burst(p.x,p.y,'#ffcf4d',20); offer('chest'); } }
   function spawnRelic(){ var avail=ARTS.filter(function(a){return run.arts.indexOf(a.id)<0;}); if(!avail.length)return;
     var a=avail[Math.floor(Math.random()*avail.length)],sp=farSpot(550,1100);
-    relics.push({x:sp.x,y:sp.y,art:a.id,t:0}); toast('✦ Ein Artefakt ist erschienen: '+a.n+' (folge dem Pfeil)'); }
+    relics.push({x:sp.x,y:sp.y,art:a.id,t:0}); toast(F('✦ Ein Artefakt ist erschienen: {0} (folge dem Pfeil)',a.n)); }
   function takeArt(id){ var a=artById(id),p=player; run.arts.push(id);
     var first=meta.arts.indexOf(id)<0; if(first){meta.arts.push(id);saveMeta();}
-    burst(p.x,p.y,a.c,30); S.shake=10; toast(a.ic+' '+a.n+(first?' · neu · ab jetzt im Menü aktivierbar':'')+': '+a.d);
+    burst(p.x,p.y,a.c,30); S.shake=10; toast(a.ic+' '+a.n+(first?L(' · neu · ab jetzt im Menü aktivierbar'):'')+': '+a.d);
     applyArt(id); renderLoadout();
     if(id==='wish')offer('wish'); }
   function applyArt(id){ var p=player;
@@ -865,10 +998,10 @@
     document.getElementById('luCard').classList.toggle('pickall',all);
     document.getElementById('choices').classList.toggle('grid',all); document.getElementById('wishBar').hidden=!all;
     if(all){ wq.value=''; renderChoices();
-      ti.textContent=offerKind==='wish'?'Wunschkristall':(offerKind==='chest'?'Upgrade-Kiste':'Level '+player.lvl);
-      su.innerHTML='<b>✧ Wunschkristall:</b> wähle ein beliebiges Item ('+pending.length+' verfügbar)'+(offerKind==='level'?' · Belohnung: +15% Hülle & +3% Schaden':''); }
-    else if(offerKind==='chest'){ti.textContent='Upgrade-Kiste';su.innerHTML='Gratis-Upgrade · wähle mit <b>1–'+pending.length+'</b> oder Klick.';}
-    else{ti.textContent='Level '+player.lvl;su.innerHTML='Belohnung: <b>+15% Hülle</b> & <b>+3% Schaden</b> · wähle mit <b>1–'+pending.length+'</b> oder Klick.';}
+      ti.textContent=offerKind==='wish'?artById('wish').n:(offerKind==='chest'?L('Upgrade-Kiste'):'Level '+player.lvl);
+      su.innerHTML=F('<b>✧ Wunschkristall:</b> wähle ein beliebiges Item ({0} verfügbar)',pending.length)+(offerKind==='level'?L(' · Belohnung: +15% Hülle & +3% Schaden'):''); }
+    else if(offerKind==='chest'){ti.textContent=L('Upgrade-Kiste');su.innerHTML=F('Gratis-Upgrade · wähle mit <b>1–{0}</b> oder Klick.',pending.length);}
+    else{ti.textContent='Level '+player.lvl;su.innerHTML=F('Belohnung: <b>+15% Hülle</b> & <b>+3% Schaden</b> · wähle mit <b>1–{0}</b> oder Klick.',pending.length);}
     rb.hidden=all;
     document.getElementById('rerollN').textContent=rerolls; rb.disabled=rerolls<=0;
     show('levelup'); S.mode='levelup'; }
@@ -876,7 +1009,7 @@
   function renderChoices(){ var html='',all=pickAll(),idx=pending.map(function(u,i){return i;});
     if(all){ var q=(document.getElementById('wishQ').value||'').trim().toLowerCase();
       if(q)idx=idx.filter(function(i){var u=pending[i];return (u.n+' '+u.d).toLowerCase().indexOf(q)>=0;});
-      idx.sort(function(a,b){var A=pending[a],B=pending[b],la=levels[A.id]||0,lb=levels[B.id]||0,byName=A.n.localeCompare(B.n,'de');
+      idx.sort(function(a,b){var A=pending[a],B=pending[b],la=levels[A.id]||0,lb=levels[B.id]||0,byName=A.n.localeCompare(B.n,LANG);
         if(wishSort==='name')return byName;
         if(wishSort==='lvl')return (lb-la)||byName;
         if(wishSort==='new')return ((la?1:0)-(lb?1:0))||(RORD[A.rar]-RORD[B.rar])||byName;
@@ -885,7 +1018,7 @@
       html+='<div class="choice r-'+u.rar+'" data-i="'+i+'"><div class="ic" style="background:'+u.c+'">'+u.ic+'</div>'+
         '<div style="min-width:0"><h4>'+u.n+' <span class="rtag">'+u.rar+'</span> <span class="lvtag"'+(cur>=u.max?' style="color:var(--gold)"':'')+'>Lv.'+cur+'/'+u.max+(cur>=u.max?' · MAX':'')+'</span></h4>'+
         '<p>'+u.d+'</p></div>'+(!all&&i<4?'<kbd class="key">'+(i+1)+'</kbd>':'')+'</div>';}
-    if(all&&!idx.length)html='<div class="wishempty">Kein Item gefunden.</div>';
+    if(all&&!idx.length)html='<div class="wishempty">'+L('Kein Item gefunden.')+'</div>';
     var box=document.getElementById('choices'); box.innerHTML=html;
     box.querySelectorAll('.choice').forEach(function(n){n.addEventListener('click',function(){pick(+n.getAttribute('data-i'));});}); }
   function pick(i){ if(S.mode!=='levelup'||!pending[i])return; var u=pending[i];
@@ -927,7 +1060,7 @@
     var news=collectUnlocks(); saveMeta(); if(NET.on)pushNow(); document.getElementById('overBuild').innerHTML=loadoutHtml();
     document.getElementById('hud').hidden=true; document.getElementById('loadout').innerHTML='';
     hideAll(); afterUnlock=dest;
-    document.getElementById('overUnlock').textContent=news.length?('Neu freigeschaltet: '+news.map(function(n){return n.kind==='item'?n.obj.n:n.obj.name;}).join(', ')):'';
+    document.getElementById('overUnlock').textContent=news.length?(L('Neu freigeschaltet: ')+news.map(function(n){return n.kind==='item'?n.obj.n:n.obj.name;}).join(', ')):'';
     if(news.length)showUnlocks(news); else goDest(dest); }
   function goDest(dest){ hideAll();
     if(dest==='over'){ var p=player;
@@ -946,7 +1079,7 @@
       if(n.kind==='item'){ var u=n.obj; d.style.setProperty('--rar','var(--'+u.rar+')');
         d.innerHTML='<div class="ic" style="background:'+u.c+'">'+u.ic+'</div><div class="ukind">Item · '+u.rar+'</div><h4>'+u.n+'</h4><p>'+u.d+'</p>'; }
       else { var s=n.obj; d.style.setProperty('--rar',s.col); d.appendChild(shipCanvas(s,false));
-        var k=document.createElement('div');k.className='ukind';k.textContent='Charakter · '+SHOTS[s.shot];d.appendChild(k);
+        var k=document.createElement('div');k.className='ukind';k.textContent=L('Charakter · ')+SHOTS[s.shot];d.appendChild(k);
         var h=document.createElement('h4');h.textContent=s.name;d.appendChild(h); }
       g.appendChild(d); });
     confetti(); S.mode='unlock'; show('unlock'); document.getElementById('unlockOk').focus(); }
@@ -1088,7 +1221,7 @@
         else{p.hp-=e.dmg*(1-p.dr);p.invuln=0.6;p.safeT=0;S.shake=14;S.flash=0.7;
           var kb1=Math.atan2(p.y-e.y,p.x-e.x);p.x+=Math.cos(kb1)*22;p.y+=Math.sin(kb1)*22;burst(p.x,p.y,'#ff4d6d',10);
           if(p.retal>0)explode(p.x,p.y,p.retal,'#ff4d6d',70,1.5+0.6*p.retal);
-          if(p.hp<=0){ if(p.revive>0){p.revive--;p.hp=p.maxhp*0.5;p.invuln=2.5;bombBlast();burst(p.x,p.y,'#ff8f5a',40);toast('❦ Phönixfeder: wiederbelebt!');}
+          if(p.hp<=0){ if(p.revive>0){p.revive--;p.hp=p.maxhp*0.5;p.invuln=2.5;bombBlast();burst(p.x,p.y,'#ff8f5a',40);toast(L('❦ Phönixfeder: wiederbelebt!'));}
             else{p.hp=0;burst(p.x,p.y,'#2ff3ff',40);endRun('over');return;} }}}}
 
     // mines
@@ -1258,25 +1391,25 @@
   var last=performance.now(), errSeen={}, errLog=load('nv_errlog',[]), logFrom='menu';
   function saveLog(){ save('nv_errlog',errLog); }
   // A frame error must never stop the loop: log it, show it once, keep running.
-  function reportError(err){ var msg=(err&&err.message)||String(err||'Unbekannter Fehler');
+  function reportError(err){ var msg=(err&&err.message)||String(err||L('Unbekannter Fehler'));
     if(window.console)console.error(err);
     if(errSeen[msg]){ errSeen[msg].n++; if(errSeen[msg].n%60===0)saveLog(); return; }
     var p=player, where='Modus: '+S.mode;
     if(p&&p.skin)where+=' · Zeit '+fmtTime(S.t)+' · Level '+p.lvl+' · '+p.skin.name+' · Gegner '+(enemies?enemies.length:0);
     var stack=(err&&err.stack)?String(err.stack).split('\n').slice(1,4).map(function(s){return s.trim();}).join('\n'):'';
-    var entry={when:new Date().toLocaleString('de-CH'),where:where,msg:msg,stack:stack,n:1};
+    var entry={when:new Date().toLocaleString(LOC),where:where,msg:msg,stack:stack,n:1};
     errSeen[msg]=entry; errLog.push(entry); if(errLog.length>20)errLog.shift(); saveLog();
-    toast('⚠ Fehler im Spiel (läuft weiter): '+msg);
-    var eh=document.getElementById('errHint'); eh.textContent='Letzter Fehler: '+msg+' · Details im Protokoll'; eh.hidden=false;
+    toast(L('⚠ Fehler im Spiel (läuft weiter): ')+msg);
+    var eh=document.getElementById('errHint'); eh.textContent=F('Letzter Fehler: {0} · Details im Protokoll',msg); eh.hidden=false;
     refreshLogBtn(); }
   // errors outside the game loop (button handlers, promises) end up in the log too
   window.addEventListener('error',function(ev){ reportError(ev.error||ev.message); });
   window.addEventListener('unhandledrejection',function(ev){ reportError(ev.reason); });
   function logText(){
-    var head='Neon Vortex · Fehlerprotokoll · '+new Date().toLocaleString('de-CH')+'\n'+navigator.userAgent+'\n';
-    if(!errLog.length)return head+'\nKeine Fehler aufgezeichnet. 👍';
+    var head=L('Neon Vortex · Fehlerprotokoll · ')+new Date().toLocaleString(LOC)+'\n'+navigator.userAgent+'\n';
+    if(!errLog.length)return head+'\n'+L('Keine Fehler aufgezeichnet. 👍');
     return head+'\n'+errLog.map(function(e,i){ return '#'+(i+1)+'  '+e.when+(e.n>1?'  (×'+e.n+')':'')+'\n'+e.where+'\n'+e.msg+(e.stack?'\n'+e.stack:''); }).join('\n\n'); }
-  function refreshLogBtn(){ var t='🧾 Protokoll'+(errLog.length?' ('+errLog.length+')':'');
+  function refreshLogBtn(){ var t=L('🧾 Protokoll')+(errLog.length?' ('+errLog.length+')':'');
     document.getElementById('logBtn').textContent=t; document.getElementById('pLog').textContent=t; }
   function openLog(from){ logFrom=from; hide('menu'); hide('pause');
     document.getElementById('errText').value=logText(); show('errlog'); }
@@ -1310,22 +1443,22 @@
     if(jTab==='items'){ var n=0,html='';
       UP.forEach(function(u){ var un=meta.items.indexOf(u.id)>=0; if(un)n++;
         if(un) html+='<div class="jc r-'+u.rar+'"><div class="ic" style="background:'+u.c+'">'+u.ic+'</div>'+
-          '<div class="jt"><h5>'+u.n+'</h5><span class="rtag">'+u.rar+'</span></div><p>'+u.d+'</p><small>Max. Level '+u.max+'</small></div>';
+          '<div class="jt"><h5>'+u.n+'</h5><span class="rtag">'+u.rar+'</span></div><p>'+u.d+'</p><small>'+L('Max. Level ')+u.max+'</small></div>';
         else html+='<div class="jc locked"><div class="ic sil">?</div><div class="jt"><h5>???</h5>'+(CH[u.id].d?'<span class="rtag" style="background:'+DIFFS[CH[u.id].d].c+'">'+DIFFS[CH[u.id].d].n+'+</span>':'')+'</div><p class="lk">🔒 '+chText(CH[u.id])+'</p></div>'; });
-      g.innerHTML=html; setProg(n,UP.length,'Items freigeschaltet'); }
+      g.innerHTML=html; setProg(n,UP.length,L('Items freigeschaltet')); }
     else if(jTab==='skins'){ var m=0;
       SKINS.forEach(function(s){ var un=meta.skins.indexOf(s.id)>=0; if(un)m++;
         var d=document.createElement('div'); d.className='jc'+(un?'':' locked'); d.appendChild(shipCanvas(s,!un));
         var t=document.createElement('div');t.className='jt';var h=document.createElement('h5');h.textContent=un?s.name:'???';t.appendChild(h);d.appendChild(t);
-        var pr=document.createElement('p'); if(!un)pr.className='lk'; pr.textContent=un?(SHOTS[s.shot]+' · '+s.hp+' Hülle. '+s.desc):('🔒 '+s.unlock.txt); d.appendChild(pr);
+        var pr=document.createElement('p'); if(!un)pr.className='lk'; pr.textContent=un?(SHOTS[s.shot]+' · '+s.hp+L(' Hülle. ')+s.desc):('🔒 '+s.unlock.txt); d.appendChild(pr);
         g.appendChild(d); });
-      setProg(m,SKINS.length,'Charaktere freigeschaltet'); }
+      setProg(m,SKINS.length,L('Charaktere freigeschaltet')); }
     else { var na=0,ah='';
       ARTS.forEach(function(a){ var found=meta.arts.indexOf(a.id)>=0; if(found)na++;
         if(found) ah+='<div class="jc" style="border-color:'+a.c+'"><div class="ic" style="background:'+a.c+'">'+a.ic+'</div>'+
-          '<div class="jt"><h5>'+a.n+'</h5><span class="rtag" style="background:var(--gold)">Artefakt</span></div><p>'+a.d+'</p></div>';
-        else ah+='<div class="jc locked"><div class="ic sil">?</div><div class="jt"><h5>???</h5></div><p class="lk">🔒 Noch nicht gefunden. Taucht zufällig in der Arena auf. Danach kannst du es vor jedem Lauf im Menü aktivieren.</p></div>'; });
-      g.innerHTML=ah; setProg(na,ARTS.length,'Artefakte entdeckt'); } }
+          '<div class="jt"><h5>'+a.n+'</h5><span class="rtag" style="background:var(--gold)">'+L('Artefakt')+'</span></div><p>'+a.d+'</p></div>';
+        else ah+='<div class="jc locked"><div class="ic sil">?</div><div class="jt"><h5>???</h5></div><p class="lk">'+L('🔒 Noch nicht gefunden. Taucht zufällig in der Arena auf. Danach kannst du es vor jedem Lauf im Menü aktivieren.')+'</p></div>'; });
+      g.innerHTML=ah; setProg(na,ARTS.length,L('Artefakte entdeckt')); } }
   document.querySelectorAll('.jtabs button').forEach(function(b){ b.addEventListener('click',function(){ jTab=b.getAttribute('data-tab'); buildJournal(); }); });
 
   // ---- input ----
@@ -1360,7 +1493,7 @@
   document.getElementById('logClear').addEventListener('click',function(){ errLog=[]; errSeen={}; saveLog();
     document.getElementById('errText').value=logText(); document.getElementById('errHint').hidden=true; refreshLogBtn(); });
   document.getElementById('logCopy').addEventListener('click',function(){ var ta=document.getElementById('errText'),b=this;
-    function done(ok){ b.textContent=ok?'Kopiert ✓':'Markiert · Strg+C drücken'; setTimeout(function(){b.textContent='Kopieren';},2200); }
+    function done(ok){ b.textContent=ok?L('Kopiert ✓'):L('Markiert · Strg+C drücken'); setTimeout(function(){b.textContent=L('Kopieren');},2200); }
     function fallback(){ ta.focus(); ta.select(); done(false); }
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(function(){done(true);},fallback); }
     else fallback(); });
@@ -1371,8 +1504,8 @@
     document.getElementById('menuItems').textContent=meta.items.length+'/'+UP.length;
     document.getElementById('menuSkins').textContent=meta.skins.length+'/'+SKINS.length;
     document.getElementById('profName').textContent=current||'—'; refreshLogBtn(); refreshShake();
-    document.getElementById('switchProf').textContent=NET.on?'Abmelden':'Wechseln';
-    document.getElementById('profLbl').textContent=NET.on?'Konto:':'Profil:';}
+    document.getElementById('switchProf').textContent=NET.on?L('Abmelden'):L('Wechseln');
+    document.getElementById('profLbl').textContent=NET.on?L('Konto:'):L('Profil:');}
   // character grid: click an unlocked one to select it, a locked one only to preview it
   var pvId=null;
   function buildSkinGrid(){var grid=document.getElementById('skinGrid');grid.innerHTML='';
@@ -1388,11 +1521,11 @@
   function renderCharInfo(id){ var s=skinById(id),un=meta.skins.indexOf(s.id)>=0; pvReset();
     document.getElementById('cName').textContent=s.name+(un?'':' 🔒');
     document.getElementById('cShot').textContent=SHOTS[s.shot];
-    document.getElementById('cDesc').textContent=s.desc+(un?'':' Freischalten: '+s.unlock.txt);
-    var st=[['Hülle',s.hp/150],['Tempo',s.spd/280],['Feuerrate',0.3/s.rate],['Schaden',s.dmg/28]],h='';
+    document.getElementById('cDesc').textContent=s.desc+(un?'':L(' Freischalten: ')+s.unlock.txt);
+    var st=[[L('Hülle'),s.hp/150],[L('Tempo'),s.spd/280],[L('Feuerrate'),0.3/s.rate],[L('Schaden'),s.dmg/28]],h='';
     st.forEach(function(x){h+='<span>'+x[0]+'</span><div class="bar"><i style="transform:scaleX('+Math.min(1,x[1]).toFixed(2)+')"></i></div>';});
     document.getElementById('cStats').innerHTML=h;
-    var sh='<span>Start-Items:</span>'; if(!s.start.length)sh+='<span>keine</span>';
+    var sh='<span>'+L('Start-Items:')+'</span>'; if(!s.start.length)sh+='<span>'+L('keine')+'</span>';
     s.start.forEach(function(iid){var u=upById(iid); sh+='<div class="lo" style="background:'+u.c+'" title="'+u.n+'">'+u.ic+'</div><span>'+u.n+' Lv.1</span>';});
     document.getElementById('cStart').innerHTML=sh; }
 
@@ -1447,22 +1580,22 @@
     ARTS.forEach(function(a){ var found=meta.arts.indexOf(a.id)>=0,on=meta.artOn.indexOf(a.id)>=0;
       var d=document.createElement('button'); d.type='button'; d.className='atg'+(found?(on?' on':''):' locked'); d.style.setProperty('--ac',a.c);
       d.innerHTML='<span class="ic" style="background:'+(found?a.c:'#0d1022')+'">'+(found?a.ic:'?')+'</span>'+(found?a.n:'???');
-      d.title=found?a.d:'Noch nicht gefunden';
-      d.addEventListener('click',function(){ if(!found){ document.getElementById('artHint').textContent='🔒 Finde dieses Artefakt zuerst in der Arena.'; return; }
+      d.title=found?a.d:L('Noch nicht gefunden');
+      d.addEventListener('click',function(){ if(!found){ document.getElementById('artHint').textContent=L('🔒 Finde dieses Artefakt zuerst in der Arena.'); return; }
         if(on)meta.artOn=meta.artOn.filter(function(x){return x!==a.id;}); else meta.artOn.push(a.id);
-        saveMeta(); buildArtToggles(); document.getElementById('artHint').textContent=(on?'Aus: ':'An: ')+a.n+' · '+a.d; });
+        saveMeta(); buildArtToggles(); document.getElementById('artHint').textContent=(on?L('Aus: '):L('An: '))+a.n+' · '+a.d; });
       box.appendChild(d); });
     var n=meta.artOn.filter(function(id){return meta.arts.indexOf(id)>=0;}).length;
-    if(!document.getElementById('artHint').textContent)document.getElementById('artHint').textContent=meta.arts.length?(n+' aktiv · Klicke ein Artefakt zum An- oder Ausschalten'):'Gefundene Artefakte kannst du hier vor dem Lauf aktivieren.'; }
+    if(!document.getElementById('artHint').textContent)document.getElementById('artHint').textContent=meta.arts.length?F('{0} aktiv · Klicke ein Artefakt zum An- oder Ausschalten',n):L('Gefundene Artefakte kannst du hier vor dem Lauf aktivieren.'); }
   function buildDiffs(){ var row=document.getElementById('diffRow'); row.innerHTML='';
     DIFFS.forEach(function(d,i){ var b=document.createElement('button'); b.type='button'; b.className='dbtn'+(meta.diff===i?' on':'');
-      b.style.setProperty('--dc',d.c); b.innerHTML=d.n+'<b>×'+d.score+' Punkte</b>';
+      b.style.setProperty('--dc',d.c); b.innerHTML=d.n+'<b>'+F('×{0} Punkte',d.score)+'</b>';
       b.addEventListener('click',function(){ meta.diff=i; saveMeta(); buildDiffs(); }); row.appendChild(b); });
     var cur=DIFFS[meta.diff]||DIFFS[0]; document.getElementById('diffHint').textContent=cur.d; }
   document.getElementById('wishQ').addEventListener('input',renderChoices);
   document.getElementById('wishSort').value=wishSort;
   document.getElementById('wishSort').addEventListener('change',function(){ wishSort=this.value; save('nv_wishsort',wishSort); renderChoices(); });
-  function refreshShake(){ var t='📳 Wackeln: '+(meta.shake?'An':'Aus');
+  function refreshShake(){ var t=L('📳 Wackeln: ')+(meta.shake?L('An'):L('Aus'));
     document.getElementById('shakeBtn').textContent=t; document.getElementById('pShake').textContent=t; }
   function toggleShake(){ meta.shake=!meta.shake; saveMeta(); refreshShake(); }
   document.getElementById('shakeBtn').addEventListener('click',toggleShake);
@@ -1470,13 +1603,13 @@
 
   // ---- profiles UI ----
   function buildProfiles(){var list=document.getElementById('plist');list.innerHTML='';
-    if(profiles.length===0){list.innerHTML='<p class="hint" style="margin:6px 0">Noch kein Profil — leg unten eines an.</p>';}
+    if(profiles.length===0){list.innerHTML='<p class="hint" style="margin:6px 0">'+L('Noch kein Profil — leg unten eines an.')+'</p>';}
     profiles.forEach(function(nm){var m=fixMeta(load(pKey(nm),null)||freshMeta());
       var row=document.createElement('div');row.className='prow'+(nm===current?' sel':'');
       var info=document.createElement('div');var h=document.createElement('h4');h.textContent=nm;
-      var sm=document.createElement('small');sm.textContent='Beste '+fmtN(m.best)+' · '+m.runs+' Läufe · '+m.items.length+'/'+UP.length+' Items';
+      var sm=document.createElement('small');sm.textContent=F('Beste {0} · {1} Läufe · {2}/{3} Items',fmtN(m.best),m.runs,m.items.length,UP.length);
       info.appendChild(h);info.appendChild(sm);row.appendChild(info);
-      var del=document.createElement('button');del.className='del';del.title='Löschen';del.textContent='✕';row.appendChild(del);
+      var del=document.createElement('button');del.className='del';del.title=L('Löschen');del.textContent='✕';row.appendChild(del);
       row.addEventListener('click',function(ev){ if(ev.target===del){delProfile(nm);return;} loadProfile(nm);gotoMenu();});
       list.appendChild(row);});}
   function delProfile(nm){ try{localStorage.removeItem(pKey(nm));}catch(e){}
@@ -1494,7 +1627,7 @@
   var NET={on:false,base:'',token:load('nv_token',''),name:'',dirty:false,saving:false,timer:null};
   function api(method,url,body,extra){ var h={'Content-Type':'application/json'}; if(NET.token)h.Authorization='Bearer '+NET.token;
     return fetch(NET.base+url,Object.assign({method:method,headers:h,body:body?JSON.stringify(body):undefined},extra||{})).then(function(r){
-      return r.json().catch(function(){return {};}).then(function(j){ if(!r.ok){var e=new Error(j.error||('Fehler '+r.status));e.status=r.status;throw e;} return j; }); }); }
+      return r.json().catch(function(){return {};}).then(function(j){ if(!r.ok){var e=new Error(j.error?L(j.error):(L('Fehler ')+r.status));e.status=r.status;throw e;} return j; }); }); }
   function ping(base){ var ac=window.AbortController?new AbortController():null, t=setTimeout(function(){if(ac)ac.abort();},4000);
     return fetch(base+'api/health',{cache:'no-store',signal:ac?ac.signal:undefined}).then(function(r){return r.ok?r.json():null;})
       .then(function(j){clearTimeout(t);return !!(j&&j.app==='neonvortex');},function(){clearTimeout(t);return false;}); }
@@ -1510,8 +1643,8 @@
     if(NET.saving){ NET.timer=setTimeout(pushNow,1000); return Promise.resolve(); }
     NET.dirty=false; NET.saving=true;
     return api('PUT','api/save',{meta:meta},keep?{keepalive:true}:null).then(function(){NET.saving=false;},function(e){ NET.saving=false; NET.dirty=true;
-      if(e.status===401){ toast('⚠ Sitzung abgelaufen, bitte neu anmelden. Fortschritt bleibt bis dahin hier.'); return; }
-      toast('⚠ Speichern auf dem Server fehlgeschlagen ('+(e.status?e.status+': '+e.message:'keine Verbindung')+'), neuer Versuch in 15 s'); reportError(new Error('Speichern fehlgeschlagen: '+(e.status||'Netz')+' '+e.message)); NET.timer=setTimeout(pushNow,15000); }); }
+      if(e.status===401){ toast(L('⚠ Sitzung abgelaufen, bitte neu anmelden. Fortschritt bleibt bis dahin hier.')); return; }
+      toast(F('⚠ Speichern auf dem Server fehlgeschlagen ({0}), neuer Versuch in 15 s',e.status?e.status+': '+e.message:L('keine Verbindung'))); reportError(new Error('Speichern fehlgeschlagen: '+(e.status||'Netz')+' '+e.message)); NET.timer=setTimeout(pushNow,15000); }); }
   window.addEventListener('pagehide',function(){ if(NET.on&&NET.dirty)pushNow(true); });
   function setAccount(j){ NET.name=j.name; current=j.name; meta=fixMeta(j.meta||freshMeta()); pvId=null; }
   var accMode='login';
@@ -1519,7 +1652,7 @@
     document.querySelectorAll('[data-acc]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-acc')===m);});
     var reg=m==='register'; document.getElementById('accPw2').hidden=!reg; document.getElementById('accRules').hidden=!reg;
     document.getElementById('accPw').setAttribute('autocomplete',reg?'new-password':'current-password');
-    document.getElementById('accSubmit').textContent=reg?'Konto erstellen':'Anmelden'; document.getElementById('accErr').textContent=''; }
+    document.getElementById('accSubmit').textContent=reg?L('Konto erstellen'):L('Anmelden'); document.getElementById('accErr').textContent=''; }
   function showAccount(msg){ hideAll(); document.getElementById('hud').hidden=true; setAccMode(accMode); show('account'); S.mode='account';
     document.getElementById('accErr').textContent=msg||''; document.getElementById('accName').focus(); }
   document.querySelectorAll('[data-acc]').forEach(function(b){ b.addEventListener('click',function(){ setAccMode(b.getAttribute('data-acc')); }); });
@@ -1529,17 +1662,17 @@
     var nm=document.getElementById('accName').value.normalize('NFKC').trim().replace(/\s+/g,' '),
         pw=document.getElementById('accPw').value,pw2=document.getElementById('accPw2').value;
     if(accMode==='register'){
-      if(!NAME_OK.test(nm)){err.textContent='Name: 3–16 Zeichen, nur Buchstaben, Zahlen, Leerzeichen, _ - .';return;}
-      if(pw.length<6){err.textContent='Passwort: mindestens 6 Zeichen.';return;}
-      if(pw!==pw2){err.textContent='Die Passwörter sind nicht gleich.';return;} }
-    else if(!nm||!pw){err.textContent='Bitte Name und Passwort eingeben.';return;}
+      if(!NAME_OK.test(nm)){err.textContent=L('Name: 3–16 Zeichen, nur Buchstaben, Zahlen, Leerzeichen, _ - .');return;}
+      if(pw.length<6){err.textContent=L('Passwort: mindestens 6 Zeichen.');return;}
+      if(pw!==pw2){err.textContent=L('Die Passwörter sind nicht gleich.');return;} }
+    else if(!nm||!pw){err.textContent=L('Bitte Name und Passwort eingeben.');return;}
     err.textContent=''; btn.disabled=true;
     api('POST',accMode==='register'?'api/register':'api/login',{name:nm,password:pw}).then(function(j){
       btn.disabled=false; NET.token=j.token; save('nv_token',j.token); setAccount(j);
       document.getElementById('accPw').value=''; document.getElementById('accPw2').value='';
       if(!j.meta){ NET.dirty=true; pushNow(); }
-      gotoMenu(); toast(accMode==='register'?'Willkommen, '+j.name+'! Konto erstellt.':'Angemeldet als '+j.name);
-    },function(e){ btn.disabled=false; err.textContent=e.status?e.message:'Server nicht erreichbar.'; }); });
+      gotoMenu(); toast(accMode==='register'?F('Willkommen, {0}! Konto erstellt.',j.name):F('Angemeldet als {0}',j.name));
+    },function(e){ btn.disabled=false; err.textContent=e.status?e.message:L('Server nicht erreichbar.'); }); });
   function logout(){ var done=function(){ api('POST','api/logout').catch(function(){}).then(function(){
       NET.token=''; NET.name=''; current=''; save('nv_token',''); meta=freshMeta(); showAccount(''); }); };
     if(NET.dirty)pushNow().then(done); else done(); }
@@ -1547,12 +1680,13 @@
   // ---- boot ----
   function localBoot(){ if(current&&profiles.indexOf(current)>=0){ loadProfile(current); gotoMenu(); }
     else { buildProfiles(); show('profiles'); S.mode='profiles'; } }
+  translatePage(); refreshLangBtns();
   S.mode='boot';
-  netCheck().then(function(ok){ if(!ok){ localBoot(); if(NET.offline)toast('⚠ Pi-Server nicht erreichbar · du spielst mit lokalen Profilen'); return; }
+  netCheck().then(function(ok){ if(!ok){ localBoot(); if(NET.offline)toast(L('⚠ Pi-Server nicht erreichbar · du spielst mit lokalen Profilen')); return; }
     NET.on=true; current='';
     if(!NET.token){ showAccount(''); return; }
     api('GET','api/me').then(function(j){ setAccount(j); gotoMenu(); },function(e){
-      if(e.status===401){ NET.token=''; save('nv_token',''); showAccount('Bitte neu anmelden.'); }
-      else showAccount('Server nicht erreichbar. Versuch es gleich nochmal.'); }); });
+      if(e.status===401){ NET.token=''; save('nv_token',''); showAccount(L('Bitte neu anmelden.')); }
+      else showAccount(L('Server nicht erreichbar. Versuch es gleich nochmal.')); }); });
 })();
 </script>

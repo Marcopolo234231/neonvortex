@@ -4,6 +4,36 @@ Ein **Roguelike-Arena-Survival** im Neon-Look für den Browser. Du fliegst durch
 
 **▶ Jetzt spielen:** https://marcopolo234231.github.io/neonvortex/
 
+![Neon Vortex im Spiel](assets/gameplay.png)
+
+Das Spiel gibt es auf **Deutsch und Englisch**. Die Sprache richtet sich nach dem Browser und lässt sich im Menü mit 🌐 umschalten.
+
+<details>
+<summary><b>🇬🇧 English</b></summary>
+
+**Neon Vortex** is a neon **roguelike arena survival** game for the browser. You fly through an arena, your ship auto-fires at the nearest threat, and every level-up lets you grow your build. Challenges unlock new items and characters. It is a single HTML file that runs in any modern browser without installation.
+
+**▶ Play now:** https://marcopolo234231.github.io/neonvortex/ (the game switches to English automatically, or use the 🌐 button in the menu)
+
+| Key | Action |
+|-----|--------|
+| `W` `A` `S` `D` / arrow keys | Move |
+| *(automatic)* | Fires at the nearest enemy |
+| `1` – `4` | Pick an upgrade on level-up |
+| `R` | Reroll the upgrade choice |
+| `Esc` | Pause (continue, journal, end run) |
+| `Enter` / `Space` | Play again after dying |
+
+- **8 characters**, each with its own weapon (twin shot, piercing lance, fireball, homing shots, shotgun, boomerang, triple burst)
+- **51 items** (common, rare, epic, legendary), 40 of them unlocked through challenges
+- **4 difficulties** from Easy to Impossible, with legendary items only on the harder ones
+- **8 artifacts** that appear in the arena and can be switched on before each run
+- Optional **own server** (Raspberry Pi) for accounts and cloud saves, see [server/ANLEITUNG.md](server/ANLEITUNG.md) (German)
+
+![Main menu](assets/menu.png)
+
+</details>
+
 ---
 
 ## 🎮 Steuerung
@@ -85,6 +115,7 @@ Im Ordner `server/` liegt ein kleiner Server ohne Abhängigkeiten (nur Node.js).
 
 - Reines **HTML5 Canvas** und JavaScript, keine Frameworks
 - Schriften von Google Fonts (Orbitron, Rajdhani)
+- Zweisprachig (Deutsch/Englisch): Deutsch steht im Code, die englischen Texte im Wörterbuch `TR` und in den `*_EN`-Tabellen in `game.src.html`
 - Gehostet über **GitHub Pages**: Jeder Push auf `main` wird per GitHub Actions automatisch veröffentlicht (`.github/workflows/deploy.yml`)
 - `game.src.html` ist der Quellcode, `index.html` die daraus erzeugte Seite für GitHub Pages
 
