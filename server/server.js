@@ -12,12 +12,24 @@ const HOST = process.env.HOST || '0.0.0.0';
 const DATA = path.resolve(process.env.NV_DATA || path.join(__dirname, 'data'));
 const USERS = path.join(DATA, 'users');
 const GAME = path.resolve(__dirname, '..', 'index.html');
-const TRUST_PROXY = process.env.TRUST_PROXY === '1'; // set when running behind Tailscale Funnel / Cloudflare Tunnel / nginx
+// set when running behind Tailscale Funnel / Cloudflare Tunnel / nginx. "1" = use the address the proxy appended
+// to X-Forwarded-For; "cloudflare" = use CF-Connecting-IP (only when every request really comes through Cloudflare)
+const TRUST_PROXY = process.env.TRUST_PROXY || '';
 // web pages that may use this server from another address (the GitHub Pages version of the game)
 const ALLOW_ORIGINS = (process.env.ALLOW_ORIGINS || 'https://marcopolo234231.github.io').split(',').map(s => s.trim()).filter(Boolean);
 const SESSION_DAYS = 180, MAX_SESSIONS = 10, MAX_SAVE = 64 * 1024, MAX_BODY = 128 * 1024;
+// limits so strangers cannot fill the SD card or overload the Pi
+const MAX_ACCOUNTS = Number(process.env.MAX_ACCOUNTS) || 2000;     // accounts in total
+const MAX_REG_HOUR = Number(process.env.MAX_REG_HOUR) || 30;       // new accounts per hour, all IPs together
+const MIN_FREE_MB = Number(process.env.MIN_FREE_MB) || 200;        // stop writing new data below this much free space
+const SAVES_PER_MIN = 12;                                          // per account (the game saves at most every 2.5 s)
+const HASH_PARALLEL = 2, HASH_QUEUE = 20;                          // scrypt needs 16 MB RAM each
 
 fs.mkdirSync(USERS, { recursive: true });
+let accounts = fs.readdirSync(USERS).filter(f => f.endsWith('.json')).length;
+function diskFull() {
+  try { const s = fs.statfsSync(DATA); return s.bavail * s.bsize < MIN_FREE_MB * 1048576; } catch (e) { return false; } // statfs: Node 18.15+
+}
 
 // ---- names: 3-16 letters (any language, incl. ä ö ü é), digits, space, _ - .
 // "Marco", "marco" and "ＭＡＲＣＯ" (full width) count as the same name.
@@ -36,9 +48,17 @@ function checkPw(pw) {
 }
 
 // ---- passwords (scrypt, built into Node) ----
+// only a few hashes at once, otherwise many parallel logins could use up the Pi's RAM
+let hashing = 0; const hashWait = [];
 function hashPw(pw, salt) {
+  if (hashing >= HASH_PARALLEL) {
+    if (hashWait.length >= HASH_QUEUE) return Promise.reject(Object.assign(new Error('Server ausgelastet, versuch es gleich nochmal.'), { code: 503 }));
+    return new Promise(go => hashWait.push(go)).then(() => hashPw(pw, salt));
+  }
+  hashing++;
   return new Promise((ok, fail) => crypto.scrypt(pw.normalize('NFC'), salt, 64, { N: 16384, r: 8, p: 1 },
-    (err, key) => err ? fail(err) : ok(key.toString('hex'))));
+    (err, key) => err ? fail(err) : ok(key.toString('hex'))))
+    .finally(() => { hashing--; const go = hashWait.shift(); if (go) go(); });
 }
 function sha(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
 function same(a, b) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && crypto.timingSafeEqual(x, y); }
@@ -82,9 +102,14 @@ function auth(req) {
 
 // ---- brute-force protection: max 10 failed logins per 15 minutes per IP ----
 const fails = new Map();
+// The proxy appends the real address at the END of X-Forwarded-For. Everything before it can be faked by the
+// client, so only the last entry counts. CF-Connecting-IP is only trusted with TRUST_PROXY=cloudflare,
+// otherwise anyone could send a new fake address with every request and skip the limits.
 function ipOf(req) {
-  return (TRUST_PROXY && (req.headers['cf-connecting-ip'] || String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()))
-    || req.socket.remoteAddress || '?';
+  let ip = '';
+  if (TRUST_PROXY === 'cloudflare') ip = String(req.headers['cf-connecting-ip'] || '').trim();
+  else if (TRUST_PROXY) ip = String(req.headers['x-forwarded-for'] || '').split(',').pop().trim();
+  return ip || req.socket.remoteAddress || '?';
 }
 function blocked(ip) { const f = fails.get(ip); return f && f.until > Date.now() && f.n >= 10; }
 function failed(ip) {
@@ -92,7 +117,14 @@ function failed(ip) {
   if (!f || f.until < now) fails.set(ip, { n: 1, until: now + 15 * 60e3 }); else f.n++;
 }
 const regs = new Map(); // max 5 new accounts per hour per IP
-setInterval(() => { const now = Date.now(); for (const m of [fails, regs]) for (const [k, f] of m) if (f.until < now) m.delete(k); }, 60e3).unref();
+let regHour = { n: 0, until: 0 }; // all IPs together
+const saves = new Map(); // saves per account and minute
+function tooManySaves(key) {
+  const now = Date.now(), s = saves.get(key);
+  if (!s || s.until < now) { saves.set(key, { n: 1, until: now + 60e3 }); return false; }
+  return ++s.n > SAVES_PER_MIN;
+}
+setInterval(() => { const now = Date.now(); for (const m of [fails, regs, saves]) for (const [k, f] of m) if (f.until < now) m.delete(k); }, 60e3).unref();
 
 // ---- http helpers ----
 function send(res, code, obj) {
@@ -118,6 +150,9 @@ const routes = {
   'POST /api/register': async (req) => {
     const ip = ipOf(req), rg = regs.get(ip), now = Date.now();
     if (rg && rg.until > now && rg.n >= 5) return [429, { error: 'Zu viele neue Konten. Versuch es später nochmal.' }];
+    if (regHour.until < now) regHour = { n: 0, until: now + 3600e3 };
+    if (regHour.n >= MAX_REG_HOUR) return [429, { error: 'Gerade werden sehr viele Konten erstellt. Versuch es in einer Stunde nochmal.' }];
+    if (accounts >= MAX_ACCOUNTS || diskFull()) return [507, { error: 'Der Server nimmt gerade keine neuen Konten an.' }];
     const b = await readBody(req), name = normName(b.name), err = checkName(name) || checkPw(b.password);
     if (err) return [400, { error: err }];
     const key = nameKey(name), salt = crypto.randomBytes(16).toString('hex');
@@ -126,6 +161,7 @@ const routes = {
     try { fs.writeFileSync(userFile(key), JSON.stringify(u), { flag: 'wx' }); } // wx = fails if the name is taken
     catch (e) { if (e.code === 'EEXIST') return [409, { error: 'Dieser Name ist schon vergeben.' }]; throw e; }
     if (!rg || rg.until < now) regs.set(ip, { n: 1, until: now + 3600e3 }); else rg.n++;
+    regHour.n++; accounts++;
     console.log('Neues Konto:', name);
     return [201, Object.assign({ token }, pub(u))];
   },
@@ -162,6 +198,8 @@ const routes = {
     const b = await readBody(req), meta = b.meta;
     if (!meta || typeof meta !== 'object' || Array.isArray(meta)) return [400, { error: 'Ungültiger Spielstand.' }];
     if (JSON.stringify(meta).length > MAX_SAVE) return [413, { error: 'Spielstand zu gross.' }];
+    if (tooManySaves(a.key)) return [429, { error: 'Zu viele Speicherungen in kurzer Zeit.' }];
+    if (diskFull()) return [507, { error: 'Speicher auf dem Server ist voll.' }];
     return withUser(a.key, async () => {
       const u = readUser(a.key); if (!u) return [401, { error: 'Konto nicht gefunden.' }];
       u.meta = meta; u.updated = new Date().toISOString(); writeUser(a.key, u);
@@ -186,7 +224,7 @@ const routes = {
   }
 };
 
-http.createServer(async (req, res) => {
+const server = http.createServer({ connectionsCheckingInterval: 2e3 }, async (req, res) => {
   const url = req.url.split('?')[0], origin = req.headers.origin;
   if (origin && ALLOW_ORIGINS.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -209,7 +247,10 @@ http.createServer(async (req, res) => {
     }
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); res.end('Nicht gefunden');
   } catch (e) {
-    if (e.code === 400 || e.code === 413) return send(res, e.code, { error: e.message });
+    if (e.code === 400 || e.code === 413 || e.code === 503) return send(res, e.code, { error: e.message });
     console.error(e); send(res, 500, { error: 'Serverfehler' + (e.code ? ' (' + e.code + ')' : '') + '.' });
   }
-}).listen(PORT, HOST, () => console.log('Neon Vortex läuft auf http://' + HOST + ':' + PORT + ' · Daten: ' + DATA));
+});
+// drop slow or hanging connections quickly (a Pi cannot keep thousands of them open)
+server.headersTimeout = 10e3; server.requestTimeout = 20e3; server.keepAliveTimeout = 5e3; server.maxConnections = 300;
+server.listen(PORT, HOST, () => console.log('Neon Vortex läuft auf http://' + HOST + ':' + PORT + ' · Daten: ' + DATA));

@@ -12,7 +12,11 @@ Er braucht nur **Node.js**, sonst nichts.
   Zeichen wie `< > / \ " '` und Emojis sind nicht erlaubt. Passwörter dürfen jedes Zeichen enthalten (mindestens 6).
 - Passwörter werden nur gehasht gespeichert (scrypt), nie im Klartext
 - Schutz gegen Passwort-Raten: nach 10 Fehlversuchen ist die IP 15 Minuten gesperrt
-- Höchstens 5 neue Konten pro Stunde und IP
+- Höchstens 5 neue Konten pro Stunde und IP, insgesamt höchstens 30 pro Stunde und 2000 Konten
+- Schutz für die SD-Karte: höchstens 12 Speicherungen pro Minute und Konto, unter 200 MB freiem Speicher wird nichts Neues mehr geschrieben
+- Schutz für den Pi: höchstens 2 Passwort-Prüfungen gleichzeitig (jede braucht 16 MB RAM), hängende Verbindungen werden nach 10 bis 20 Sekunden getrennt
+
+Die Grenzen kannst du in der Service-Datei ändern, z. B. `Environment=MAX_ACCOUNTS=5000`, `Environment=MAX_REG_HOUR=60` oder `Environment=MIN_FREE_MB=500`.
 
 ## Installation
 
@@ -106,7 +110,10 @@ Läuft das Spiel auf einer anderen Adresse als `https://marcopolo234231.github.i
 
 ### Alternative: Cloudflare Tunnel
 
-Das geht auch, für eine feste Adresse braucht es aber eine eigene Domain (ca. 10 CHF pro Jahr). Auch hier `TRUST_PROXY=1` setzen.
+Das geht auch, für eine feste Adresse braucht es aber eine eigene Domain (ca. 10 CHF pro Jahr). Hier `TRUST_PROXY=cloudflare` setzen.
+
+**Wichtig:** `TRUST_PROXY=cloudflare` nur verwenden, wenn wirklich *alle* Anfragen über Cloudflare kommen. Bei Tailscale Funnel immer `TRUST_PROXY=1`,
+sonst könnte jemand eine falsche Adresse mitschicken und so die Sperren umgehen.
 
 ## Nur zu Hause
 
